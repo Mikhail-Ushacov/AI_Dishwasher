@@ -60,6 +60,8 @@ class KitchenEnv(gym.Env):
         return self._get_obs(), {}
 
     def step(self, action):
+        action = int(action) 
+
         reward = 0
         terminated = False
 
