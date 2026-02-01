@@ -19,14 +19,14 @@
         },
         "map_1.tmx": {
             "scale": 1.5,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 202.66666666666669,
-                "y": 324.66666666666663
+                "x": 108,
+                "y": 252.66666666666663
             }
         },
         "map_1.tmx#cabinets_LRK": {
-            "scaleInDock": 0.5
+            "scaleInDock": 0.75
         },
         "map_1.tmx#decorations_LRK": {
             "scaleInDock": 1
@@ -35,18 +35,20 @@
             "scaleInDock": 1
         },
         "map_1.tmx#floorswalls_LRK": {
-            "scaleInDock": 3,
+            "scaleInDock": 4,
             "scaleInEditor": 3
         },
         "map_1.tmx#kitchen_LRK": {
-            "scaleInDock": 1
+            "scaleInDock": 1.5
         },
         "map_1.tmx#livingroom_LRK": {
-            "scaleInDock": 1
+            "scaleInDock": 1.5
         }
     },
+    "last.exportedFilePath": "C:/Users/Owner/Desktop/AI_Dishwasher/map",
     "last.imagePath": "C:/Users/Owner/Desktop/AI_Dishwasher/assets",
     "map.height": 32,
+    "map.lastUsedExportFilter": "JSON map-файлы (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
