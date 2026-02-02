@@ -1,0 +1,84 @@
+import pygame
+import pytmx
+from pytmx.util_pygame import load_pygame
+
+# ---------- Настройки ----------
+WIDTH, HEIGHT = 480, 480
+FPS = 60
+PLAYER_SPEED = 3
+
+# ---------- Инициализация ----------
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Top-Down Game")
+clock = pygame.time.Clock()
+
+# ---------- Загрузка карты ----------
+tmx_data = load_pygame("map.tmx")  # замените на путь к вашему файлу .tmx
+
+# ---------- Игрок ----------
+player_image = pygame.Surface((16, 16))
+player_image.fill((255, 0, 0))
+player_rect = player_image.get_rect(topleft=(150, 150))
+
+# ---------- Создание коллизий ----------
+collision_rects = []
+for obj in tmx_data.objects:
+    rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+    collision_rects.append(rect)
+
+# ---------- Главный цикл ----------
+running = True
+while running:
+    dt = clock.tick(FPS) / 1000  # для движения, если нужно
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # ---------- Движение игрока ----------
+    keys = pygame.key.get_pressed()
+    dx = dy = 0
+    if keys[pygame.K_w]:
+        dy = -PLAYER_SPEED
+    if keys[pygame.K_s]:
+        dy = PLAYER_SPEED
+    if keys[pygame.K_a]:
+        dx = -PLAYER_SPEED
+    if keys[pygame.K_d]:
+        dx = PLAYER_SPEED
+
+    # Проверка коллизий по X
+    player_rect.x += dx
+    for rect in collision_rects:
+        if player_rect.colliderect(rect):
+            if dx > 0:
+                player_rect.right = rect.left
+            if dx < 0:
+                player_rect.left = rect.right
+
+    # Проверка коллизий по Y
+    player_rect.y += dy
+    for rect in collision_rects:
+        if player_rect.colliderect(rect):
+            if dy > 0:
+                player_rect.bottom = rect.top
+            if dy < 0:
+                player_rect.top = rect.bottom
+
+    # ---------- Отрисовка ----------
+    screen.fill((0, 0, 0))
+    
+    # Рендер тайлов
+    for layer in tmx_data.visible_layers:
+        if isinstance(layer, pytmx.TiledTileLayer):
+            for x, y, gid in layer:
+                tile = tmx_data.get_tile_image_by_gid(gid)
+                if tile:
+                    screen.blit(tile, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
+    
+    # Отрисовка игрока
+    screen.blit(player_image, player_rect.topleft)
+    
+    pygame.display.flip()
+
+pygame.quit()

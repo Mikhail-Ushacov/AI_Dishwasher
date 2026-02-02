@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map_1.tmx",
+    "activeFile": "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "Все файлы (*)",
@@ -20,6 +20,58 @@
         "#kitchen_LRK": {
             "scaleInDock": 1
         },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json": {
+            "scale": 1.669921875,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 255.70058479532165,
+                "y": 255.70058479532165
+            }
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json#cabinets_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json#decorations_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json#doorswindowsstairs_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json#floorswalls_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json#kitchen_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json#livingroom_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx": {
+            "scale": 2,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 161.5,
+                "y": 145.5
+            }
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#cabinets_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#decorations_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#doorswindowsstairs_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#floorswalls_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#kitchen_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#livingroom_LRK": {
+            "scaleInDock": 1
+        },
         "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json": {
             "expandedObjectLayers": [
                 5
@@ -27,8 +79,8 @@
             "scale": 5.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 240.54545454545456,
-                "y": 206
+                "x": 830.6363636363637,
+                "y": 800.0909090909091
             }
         },
         "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json#topdownasset": {
@@ -88,8 +140,8 @@
             "scale": 3,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 93.33333333333334,
-                "y": 139.66666666666669
+                "x": 264.66666666666663,
+                "y": 291.8333333333333
             }
         },
         "map_1.tmx#cabinets_LRK": {
@@ -117,18 +169,21 @@
     "last.imagePath": "C:/Users/Owner/Desktop/AI_Dishwasher/assets",
     "map.height": 16,
     "map.lastUsedExportFilter": "JSON map-файлы (*.tmj *.json)",
-    "map.lastUsedFormat": "json",
+    "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "map.width": 16,
     "openFiles": [
         "map_1.tmx",
-        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json"
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx"
     ],
     "project": "безымянный.tiled-project",
     "recentFiles": [
-        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
         "map_1.tmx",
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json",
         "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/house.json",
         "map_1.tmj"
     ],
