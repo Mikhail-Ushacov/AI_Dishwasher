@@ -1,4 +1,7 @@
-gymnasium
-networkx
 numpy
+networkx
+gymnasium
 stable-baselines3
+sb3-contrib
+pyyaml
+tensorboard
