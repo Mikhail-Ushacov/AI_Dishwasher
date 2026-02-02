@@ -1,0 +1,45 @@
+simulation:
+  max_steps: 1000
+  time_step_penalty: -0.05
+  failure_penalty: -5.0
+  success_reward: 10.0
+  subgoal_reward: 2.0
+  max_inventory: 2
+  max_orders: 3
+  order_ttl: 60
+
+graph:
+  nodes:
+    0: {type: "floor", name: "Floor"}
+    1: {type: "source", name: "PotatoBin", item_id: 1}
+    2: {type: "source", name: "TomatoBin", item_id: 3}
+    3: {type: "process", name: "Stove"}
+    4: {type: "process", name: "CutBoard"}
+    5: {type: "delivery", name: "ServiceWindow"}
+  edges:
+    - [0, 1, 2] # From, To, Weight
+    - [0, 2, 2]
+    - [0, 3, 5]
+    - [0, 4, 3]
+    - [3, 5, 2]
+    - [4, 5, 2]
+    - [1, 3, 4]
+    - [2, 4, 3]
+
+items:
+  0: "Empty"
+  1: "RawPotato"
+  2: "CookedPotato"
+  3: "RawTomato"
+  4: "SlicedTomato"
+
+recipes:
+  # InputID + StationName -> OutputID, Duration
+  - input: 1
+    station: "Stove"
+    output: 2
+    time: 15
+  - input: 3
+    station: "CutBoard"
+    output: 4
+    time: 8
