@@ -1,7 +1,7 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from kitchen_map import KitchenMap, KITCHEN_MATRIX
+from .moduls.kitchen_map import KitchenMap, KITCHEN_MATRIX
 
 
 class KitchenEnv(gym.Env):

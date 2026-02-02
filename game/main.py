@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
+import os
 
 # ---------- Настройки ----------
 WIDTH, HEIGHT = 480, 480
@@ -13,7 +14,10 @@ pygame.display.set_caption("Top-Down Grid Movement")
 clock = pygame.time.Clock()
 
 # ---------- Загрузка карты ----------
-tmx_data = load_pygame("map.tmx")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+tmx_path = os.path.join(base_dir, "map.tmx")
+
+tmx_data = load_pygame(tmx_path)
 
 TILE_SIZE = tmx_data.tilewidth
 

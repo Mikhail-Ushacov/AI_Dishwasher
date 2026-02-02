@@ -94,7 +94,7 @@
 </data>
  </layer>
  <objectgroup id="2" name="Слой объектов 1">
-  <object id="4" name="order" x="34.25" y="208" width="27.5" height="38.4167"/>
+  <object id="4" name="order" x="34.25" y="208.364" width="27.5" height="47.2349"/>
   <object id="5" name="table" x="-0.5" y="96.5" width="14.75" height="8.5"/>
   <object id="6" name="table" x="-0.125" y="79.75" width="14.75" height="16.75"/>
   <object id="7" name="table" x="0.125" y="64.625" width="15.25" height="15.25"/>
@@ -111,10 +111,9 @@
   <object id="20" x="15.5" y="25.25" width="65" height="24.75"/>
   <object id="21" x="112.75" y="25" width="87.25" height="25.25"/>
   <object id="22" name="fridge" x="212" y="40.75" width="24.25" height="55.25"/>
-  <object id="23" x="0.25" y="208" width="33.75" height="47.75"/>
-  <object id="25" x="34.5" y="246.5" width="27.25" height="9.25"/>
-  <object id="26" x="62.125" y="207.875" width="33.75" height="47.75"/>
-  <object id="28" name="1" x="-21.3333" y="0" width="22" height="511.667"/>
+  <object id="23" x="0.25" y="208.455" width="33.75" height="47.1136"/>
+  <object id="26" x="62.125" y="208.307" width="33.75" height="47.3182"/>
+  <object id="28" name="1" x="-21.3333" y="0" width="21" height="511.667"/>
   <object id="29" name="1" x="511.333" y="-0.500167" width="22" height="512.167"/>
   <object id="30" name="1" x="534.117" y="-21.5955" width="22" height="554.417" rotation="90"/>
   <object id="31" name="1" x="533.5" y="511.042" width="22" height="554.417" rotation="90"/>

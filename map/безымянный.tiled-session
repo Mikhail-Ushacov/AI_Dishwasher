@@ -47,11 +47,14 @@
             "scaleInDock": 1
         },
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx": {
-            "scale": 2,
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 8,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 161.5,
-                "y": 145.5
+                "x": 39.5,
+                "y": 238.75
             }
         },
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx#cabinets_LRK": {
@@ -79,8 +82,8 @@
             "scale": 5.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 830.6363636363637,
-                "y": 800.0909090909091
+                "x": 830.7272727272727,
+                "y": 800.1818181818182
             }
         },
         "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json#topdownasset": {
@@ -141,7 +144,7 @@
             "selectedLayer": 2,
             "viewCenter": {
                 "x": 264.66666666666663,
-                "y": 291.8333333333333
+                "y": 292
             }
         },
         "map_1.tmx#cabinets_LRK": {
@@ -174,15 +177,13 @@
     "map.tileWidth": 16,
     "map.width": 16,
     "openFiles": [
-        "map_1.tmx",
-        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx"
     ],
     "project": "безымянный.tiled-project",
     "recentFiles": [
-        "map_1.tmx",
-        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.tmx",
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
+        "map_1.tmx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/map.json",
         "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/house.json",
         "map_1.tmj"
