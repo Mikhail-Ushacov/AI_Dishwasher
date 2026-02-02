@@ -1,119 +1,96 @@
 import gymnasium as gym
 from gymnasium import spaces
-import networkx as nx
 import numpy as np
-
-from stable_baselines3 import PPO
+from kitchen_map import KitchenMap, KITCHEN_MATRIX
 
 
 class KitchenEnv(gym.Env):
-    metadata = {"render_modes": []}
+    metadata = {"render_modes": ["human"]}
 
     def __init__(self):
         super().__init__()
 
-        # ====== КУХНЯ (ГРАФ) ======
-        # 0 - стол, 1 - плита, 2 - мойка
-        self.graph = nx.Graph()
-        self.graph.add_edge(0, 1, weight=2)
-        self.graph.add_edge(1, 2, weight=3)
-        self.graph.add_edge(0, 2, weight=4)
+        self.map = KitchenMap(KITCHEN_MATRIX)
+        self.graph = self.map.graph
 
-        self.STOL = 0
-        self.PLITA = 1
-        self.MOYKA = 2
+        self.STOL = self.map.STOL
+        self.PLITA = self.map.PLITA
+        self.MOYKA = self.map.MOYKA
 
         self.num_nodes = self.graph.number_of_nodes()
+        self.max_recipe_steps = 3
 
-        # ====== РЕЦЕПТ ======
-        # порядок действий обязателен
-        self.recipe = ["take", "cook", "wash"]
-
-        # ====== OBSERVATION ======
-        # [позиция, шаг рецепта, есть_предмет]
         self.observation_space = spaces.MultiDiscrete([
             self.num_nodes,
-            len(self.recipe),
+            self.max_recipe_steps + 1,
             2
         ])
 
-        # ====== ACTIONS ======
-        # 0..2 -> move
-        # 3 -> take
-        # 4 -> cook
-        # 5 -> wash
         self.ACTION_TAKE = self.num_nodes
         self.ACTION_COOK = self.num_nodes + 1
         self.ACTION_WASH = self.num_nodes + 2
-
         self.action_space = spaces.Discrete(self.num_nodes + 3)
 
+        self.max_steps = 50
         self.reset()
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-
         self.current_node = self.STOL
         self.recipe_step = 0
         self.has_item = 0
-
+        self.current_step = 0
         return self._get_obs(), {}
 
     def step(self, action):
-        action = int(action) 
+        action = int(action)
+        self.current_step += 1
 
-        reward = 0
+        reward = -0.1
         terminated = False
+        truncated = False
 
-        # ====== MOVE ======
+        # Перемещение
         if action < self.num_nodes:
-            if self.graph.has_edge(self.current_node, action):
-                time_cost = self.graph[self.current_node][action]["weight"]
+            if action == self.current_node:
+                reward -= 0.1
+            elif self.graph.has_edge(self.current_node, action):
+                cost = self.graph[self.current_node][action]["weight"]
+                reward -= cost
                 self.current_node = action
-                reward -= time_cost
             else:
-                reward -= 5
+                reward -= 2
 
-        # ====== TAKE ======
+        # Взять
         elif action == self.ACTION_TAKE:
-            if (
-                self.recipe[self.recipe_step] == "take"
-                and self.current_node == self.STOL
-                and self.has_item == 0
-            ):
+            if self.recipe_step == 0 and self.current_node == self.STOL:
                 self.has_item = 1
-                self.recipe_step += 1
-                reward += 10
+                self.recipe_step = 1
+                reward = 15
             else:
-                reward -= 2
+                reward -= 1
 
-        # ====== COOK ======
+        # Готовить
         elif action == self.ACTION_COOK:
-            if (
-                self.recipe[self.recipe_step] == "cook"
-                and self.current_node == self.PLITA
-                and self.has_item == 1
-            ):
-                self.recipe_step += 1
-                reward += 10
+            if self.recipe_step == 1 and self.current_node == self.PLITA:
+                self.recipe_step = 2
+                reward = 15
             else:
-                reward -= 2
+                reward -= 1
 
-        # ====== WASH ======
+        # Мыть
         elif action == self.ACTION_WASH:
-            if (
-                self.recipe[self.recipe_step] == "wash"
-                and self.current_node == self.MOYKA
-                and self.has_item == 1
-            ):
-                self.recipe_step += 1
-                reward += 10
-                reward += 20
+            if self.recipe_step == 2 and self.current_node == self.MOYKA:
+                self.recipe_step = 3
+                reward = 50
                 terminated = True
             else:
-                reward -= 2
+                reward -= 1
 
-        return self._get_obs(), reward, terminated, False, {}
+        if self.current_step >= self.max_steps:
+            truncated = True
+
+        return self._get_obs(), reward, terminated, truncated, {}
 
     def _get_obs(self):
         return np.array(
@@ -121,36 +98,11 @@ class KitchenEnv(gym.Env):
             dtype=np.int32
         )
 
-
-# ==============================
-# ТЕСТ + ОБУЧЕНИЕ
-# ==============================
-if __name__ == "__main__":
-    env = KitchenEnv()
-
-    print("=== Random policy test ===")
-    obs, _ = env.reset()
-    done = False
-    while not done:
-        action = env.action_space.sample()
-        obs, reward, done, _, _ = env.step(action)
-        print(f"action={action}, obs={obs}, reward={reward}")
-
-    print("\n=== Training PPO ===")
-    model = PPO(
-        "MlpPolicy",
-        env,
-        verbose=1,
-        learning_rate=3e-4,
-        gamma=0.99
-    )
-
-    model.learn(total_timesteps=20_000)
-
-    print("\n=== Trained agent ===")
-    obs, _ = env.reset()
-    done = False
-    while not done:
-        action, _ = model.predict(obs, deterministic=True)
-        obs, reward, done, _, _ = env.step(action)
-        print(f"action={action}, obs={obs}, reward={reward}")
+    def render(self):
+        names = {0: "Стол", 1: "Плита", 2: "Мойка"}
+        print(
+            f"Шаг {self.current_step} | "
+            f"{names[self.current_node]} | "
+            f"Рецепт {self.recipe_step} | "
+            f"Предмет {self.has_item}"
+        )

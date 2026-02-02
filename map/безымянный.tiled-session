@@ -17,12 +17,79 @@
         "#cabinets_LRK": {
             "dynamicWrapping": false
         },
-        "map_1.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 0,
+        "#kitchen_LRK": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 5.5,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 108,
-                "y": 252.66666666666663
+                "x": 240.54545454545456,
+                "y": 206
+            }
+        },
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json#topdownasset": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json#topdownasset-original": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/house.json": {
+            "expandedObjectLayers": [
+                4,
+                6
+            ],
+            "scale": 4.1105769230769225,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 111.90643274853801,
+                "y": 135.99064327485382
+            }
+        },
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/house.json#topdownasset": {
+            "scaleInDock": 1
+        },
+        "map_1.tmj": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 2,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 165,
+                "y": 162.5
+            }
+        },
+        "map_1.tmj#cabinets_LRK": {
+            "scaleInDock": 0.75
+        },
+        "map_1.tmj#decorations_LRK": {
+            "scaleInDock": 1
+        },
+        "map_1.tmj#doorswindowsstairs_LRK": {
+            "scaleInDock": 1
+        },
+        "map_1.tmj#floorswalls_LRK": {
+            "scaleInDock": 4
+        },
+        "map_1.tmj#kitchen_LRK": {
+            "scaleInDock": 1.5
+        },
+        "map_1.tmj#livingroom_LRK": {
+            "scaleInDock": 1.5
+        },
+        "map_1.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 3,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 93.33333333333334,
+                "y": 139.66666666666669
             }
         },
         "map_1.tmx#cabinets_LRK": {
@@ -39,7 +106,8 @@
             "scaleInEditor": 3
         },
         "map_1.tmx#kitchen_LRK": {
-            "scaleInDock": 1.5
+            "scaleInDock": 1.5,
+            "scaleInEditor": 4
         },
         "map_1.tmx#livingroom_LRK": {
             "scaleInDock": 1.5
@@ -47,18 +115,22 @@
     },
     "last.exportedFilePath": "C:/Users/Owner/Desktop/AI_Dishwasher/map",
     "last.imagePath": "C:/Users/Owner/Desktop/AI_Dishwasher/assets",
-    "map.height": 32,
+    "map.height": 16,
     "map.lastUsedExportFilter": "JSON map-файлы (*.tmj *.json)",
-    "map.lastUsedFormat": "tmx",
+    "map.lastUsedFormat": "json",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 32,
+    "map.width": 16,
     "openFiles": [
-        "map_1.tmx"
+        "map_1.tmx",
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json"
     ],
     "project": "безымянный.tiled-project",
     "recentFiles": [
-        "map_1.tmx"
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/dungeon.json",
+        "map_1.tmx",
+        "C:/Users/Owner/Desktop/NewEraRPG/assets/maps/house.json",
+        "map_1.tmj"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {
