@@ -4,9 +4,8 @@ from ..core.entities import Item, Order, StationState
 
 class InteractionResult:
     """DTO to communicate results back to the Engine/Env."""
-    def __init__(self, success: bool, reward: float = 0.0, info: str = ""):
+    def __init__(self, success: bool, info: str = ""):
         self.success = success
-        self.reward = reward
         self.info = info
 
 class InteractionStrategy(ABC):
@@ -23,7 +22,7 @@ class SourceInteraction(InteractionStrategy):
         if len(inventory) >= max_inv:
             return InteractionResult(False, info="Inventory Full")
         
-        return InteractionResult(True, reward=0.0, info=f"Pickup_{station.source_item_id}")
+        return InteractionResult(True, info=f"Pickup_{station.source_item_id}")
 
 class ProcessInteraction(InteractionStrategy):
     def handle(self, station: StationState, inventory: List[Item], 
@@ -32,7 +31,7 @@ class ProcessInteraction(InteractionStrategy):
         if station.held_item and not station.is_busy:
             if len(inventory) >= config['simulation']['max_inventory']:
                 return InteractionResult(False, info="Inventory Full")
-            return InteractionResult(True, reward=1.0, info="Retrieve_Processed")
+            return InteractionResult(True, info="Retrieve_Processed")
 
         if not station.held_item:
             recipes = config['recipes']
@@ -42,7 +41,7 @@ class ProcessInteraction(InteractionStrategy):
                               and r['station'] == station.name), None)
                 
                 if match:
-                    return InteractionResult(True, reward=config['simulation']['subgoal_reward'], 
+                    return InteractionResult(True, 
                                              info=f"Place_{idx}_{match['output']}_{match['time']}")
             
             return InteractionResult(False, info="No Valid Recipe Item")
@@ -57,17 +56,11 @@ class DeliveryInteraction(InteractionStrategy):
             match_order = next((o for o in orders if o.item_type == item.type_id), None)
             
             if match_order:
-                ttl = config['simulation']['order_ttl']
-                bonus = (match_order.time_remaining / ttl) * 2.0
-                base_reward = config['simulation']['success_reward']
-                
-                return InteractionResult(True, reward=base_reward + bonus, 
-                                         info=f"Deliver_{idx}_{match_order.order_id}")
+                return InteractionResult(True, info=f"Deliver_{idx}_{match_order.order_id}")
         
         return InteractionResult(False, info="Wrong Item")
 
 class InteractionManager:
-    """Factory to route requests to the right strategy."""
     def __init__(self):
         self.strategies = {
             "source": SourceInteraction(),

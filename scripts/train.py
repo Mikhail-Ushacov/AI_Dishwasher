@@ -1,5 +1,6 @@
 import sys
 import os
+import argparse
 import gymnasium as gym
 from sb3_contrib import MaskablePPO
 from sb3_contrib.common.wrappers import ActionMasker
@@ -11,17 +12,35 @@ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 from kitchen_rl.env.kitchen_env import KitchenGraphEnv
+from kitchen_rl.recording import EpisodeRecorder
 
-def make_env():
+# Global flag for recording (set via command line)
+RECORDING_ENABLED = False
+RECORDING_DIR = "replays"
+
+def make_env(enable_recording=False, recording_dir="replays"):
     """Helper to create the environment with the mask wrapper."""
     env = KitchenGraphEnv(config_path="configs/default_config.yaml")
+    
+    # Wrap with recorder if enabled
+    if enable_recording:
+        env = EpisodeRecorder(
+            env,
+            output_dir=recording_dir,
+            enabled=True,
+            keyframe_interval=10
+        )
     
     # SB3 Contrib requires a specific wrapper signature to fetch masks
     # We define a lambda that calls the method we implemented in Sprint 2
     env = ActionMasker(env, lambda env: env.action_masks())
     return env
 
-def train():
+def train(record=False, record_dir="replays", timesteps=500_000):
+    global RECORDING_ENABLED, RECORDING_DIR
+    RECORDING_ENABLED = record
+    RECORDING_DIR = record_dir
+    
     # 1. Setup Vectorized Environment (Runs faster)
     # Using DummyVecEnv for simplicity/debugging, switch to SubprocVecEnv for speed
     env = DummyVecEnv([make_env for _ in range(4)])
@@ -53,7 +72,7 @@ def train():
     
     # 4. Train
     model.learn(
-        total_timesteps=500_000, 
+        total_timesteps=timesteps, 
         callback=checkpoint_callback,
         progress_bar=True
     )
@@ -61,6 +80,22 @@ def train():
     # 5. Save
     model.save("models/kitchen_ppo_final")
     print("Training complete. Model saved.")
+    
+    if record:
+        print(f"\nReplays saved to: {record_dir}/")
+
+def main():
+    parser = argparse.ArgumentParser(description='Train Kitchen Graph RL Agent')
+    parser.add_argument('--record', action='store_true',
+                       help='Enable episode recording for visualization')
+    parser.add_argument('--record-dir', default='replays',
+                       help='Directory to save replay files')
+    parser.add_argument('--timesteps', type=int, default=500_000,
+                       help='Total training timesteps')
+    
+    args = parser.parse_args()
+    
+    train(record=args.record, record_dir=args.record_dir, timesteps=args.timesteps)
 
 if __name__ == "__main__":
-    train()
+    main()

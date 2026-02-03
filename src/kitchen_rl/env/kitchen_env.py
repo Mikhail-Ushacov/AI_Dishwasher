@@ -7,7 +7,7 @@ from ..core.engine import KitchenWorld
 from ..utils.config_loader import ConfigLoader
 from .observations import ObservationBuilder
 from .action_mask import ActionMasker
-from .rewards import DenseRewardManager
+from .rewards import PotentialRewardManager
 
 class KitchenGraphEnv(gym.Env):
     metadata = {"render_modes": ["human", "json"]}
@@ -22,7 +22,7 @@ class KitchenGraphEnv(gym.Env):
         # 2. Initialize Helpers
         self.obs_builder = ObservationBuilder(self.config)
         self.action_masker = ActionMasker(self.config)
-        self.reward_manager = DenseRewardManager(self.config)
+        self.reward_manager = PotentialRewardManager(self.config, gamma=0.99)
         
         # 3. Define Spaces
         self.num_nodes = len(self.config['graph']['nodes'])
@@ -34,7 +34,7 @@ class KitchenGraphEnv(gym.Env):
         
         # If we had a ScenarioManager, we would use options to load a specific level here
         self.world.reset()
-        self.reward_manager.reset()
+        self.reward_manager.reset(self.world) 
         
         obs = self.obs_builder.get_observation(self.world)
         info = self._get_info()
@@ -72,6 +72,7 @@ class KitchenGraphEnv(gym.Env):
         # === 5. Return ===
         obs = self.obs_builder.get_observation(self.world)
         info = self._get_info()
+        info["event_info"] = event_info  # Recorder needs this to see delivery events
         
         return obs, reward, terminated, truncated, info
 
@@ -82,7 +83,8 @@ class KitchenGraphEnv(gym.Env):
     def _get_info(self):
         return {
             "time": self.world.global_time,
-            "orders_pending": len(self.world.orders)
+            "orders_pending": len(self.world.orders),
+            "orders_completed": self.world.completed_orders
         }
 
     def render(self):

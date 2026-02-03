@@ -21,21 +21,22 @@ class HeuristicAgent:
         
         # 0. Check if we arrived at target
         if self.target_node == self.world.agent_node:
-            self.target_node = None
-            # If we are here, we probably wanted to interact
-            # Check if interaction is valid (using the Mask logic implicitly)
-            return self.world.interaction_mgr.attempt_interaction(
-                self.world.stations[self.world.agent_node],
-                self.world.inventory,
-                self.world.orders,
-                self.world.config
-            ).success and len(self.world.config['graph']['nodes']) # Return Interact Action ID (Num_Nodes)
-            # A hacky way to return Interaction ID:
-            return len(self.world.config['graph']['nodes']) # = ACT_INTERACT
+            # ONLY interact if we are at a functional station (not floor)
+            if self.world.agent_node != 0:
+                self.target_node = None
+                return len(self.world.config['graph']['nodes'])  # ACT_INTERACT
+            else:
+                self.target_node = None  # Clear target and re-decide
 
         # 1. Decision Logic: Determine High-Level Target
         if not self.target_node:
             self.target_node = self._decide_next_target()
+            
+        # If we still have no target (no orders), just stay at Floor (Node 0)
+        if self.target_node is None:
+            if self.world.agent_node == 0:
+                return 0  # Stay put at floor
+            return 0  # Head to floor center
 
         # 2. Pathfinding: Get next step towards target
         if self.target_node is not None:
@@ -57,14 +58,21 @@ class HeuristicAgent:
         orders = self.world.orders
         config = self.world.config
         
-        # Priority 1: Deliver finished goods
+        # Priority 1: Deliver finished goods in inventory
         for item in inventory:
-            # Check if this item matches any active order
             for order in orders:
                 if order.item_type == item.type_id:
-                    return 5 # Hardcoded Delivery Node (In a real app, find node by type "delivery")
+                    return 5 # Delivery Window
 
-        # Priority 2: Process raw goods
+        # Priority 2: Retrieve finished goods from stations
+        if len(inventory) < config['simulation']['max_inventory']:
+            for nid, station in self.world.stations.items():
+                if station.held_item and not station.is_busy:
+                    # Is this item actually needed for an order?
+                    if any(o.item_type == station.held_item.type_id for o in orders):
+                        return nid
+
+        # Priority 3: Process raw goods
         for item in inventory:
             # Find recipe
             for r in config['recipes']:
