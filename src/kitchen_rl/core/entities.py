@@ -29,6 +29,7 @@ class StationState:
     held_item: Optional[Item] = None
     timer: int = 0
     is_busy: bool = False
+    output_item_id: Optional[int] = None  # Track what is being made
 
     def tick(self) -> bool:
         """Decrements timer. Returns True if processing just finished."""
@@ -37,5 +38,9 @@ class StationState:
             if self.timer <= 0:
                 self.is_busy = False
                 self.timer = 0
+                # TRANSFORM NOW
+                if self.output_item_id:
+                    self.held_item.type_id = self.output_item_id
+                    self.output_item_id = None
                 return True
         return False

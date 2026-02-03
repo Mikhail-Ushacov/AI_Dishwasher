@@ -9,5 +9,5 @@ dist/
 
 logs/
 models/
-replays/*.json
+replays/
 .scripts/

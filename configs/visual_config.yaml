@@ -1,0 +1,187 @@
+# Visualization configuration for Kitchen Graph RL
+# Maps item IDs and station types to visual assets
+
+visualization:
+  # Screen settings
+  screen:
+    width: 1000
+    height: 700
+    title: "Kitchen Graph RL - Replay Visualizer"
+    fps: 60
+  
+  # Asset paths (relative to project root)
+  assets:
+    base_path: "assets"
+    food_path: "assets/BigWander_TheBanquet/IndividualSprites/NoOutline"
+    use_outline: false  # Set to true to use outlined sprites
+    outline_suffix: "_Outline"
+  
+  # Item ID to sprite mapping
+  # Using meat products for potato visual representation as requested
+  items:
+    0:  # Empty
+      sprite: null
+      color: "#00000000"  # Transparent
+      label: "Empty"
+      
+    1:  # RawPotato (mapped to raw steak)
+      sprite: "pt1/Steak_Raw_Individual_BigWander_TheBanquet.png"
+      color: "#E57373"  # Reddish
+      label: "Raw Potato"
+      scale: 0.6
+      
+    2:  # CookedPotato (mapped to cooked steak)
+      sprite: "pt1/Steak_Cooked_Individual_BigWander_TheBanquet.png"
+      color: "#8D6E63"  # Brown
+      label: "Cooked Potato"
+      scale: 0.6
+      
+    3:  # RawTomato
+      sprite: "pt2/Tomato_Individual_BigWander_TheBanquet.png"
+      color: "#E53935"  # Tomato red
+      label: "Raw Tomato"
+      scale: 0.6
+      
+    4:  # SlicedTomato
+      sprite: "pt2/Tomato_piece01_BigWander_TheBanquet.png"
+      color: "#FF8A80"  # Light red
+      label: "Sliced Tomato"
+      scale: 0.6
+  
+  # Station type visual properties
+  stations:
+    floor:
+      base_color: "#8D6E63"  # Wood floor
+      highlight_color: "#A1887F"
+      size: 40
+      label_color: "#FFFFFF"
+      
+    source:
+      base_color: "#4CAF50"  # Green (fresh ingredients)
+      highlight_color: "#66BB6A"
+      size: 50
+      label_color: "#FFFFFF"
+      icon: "bin"
+      
+    process:
+      base_color: "#FF9800"  # Orange (processing)
+      highlight_color: "#FFB74D"
+      size: 50
+      label_color: "#FFFFFF"
+      icon: "station"
+      
+    delivery:
+      base_color: "#2196F3"  # Blue (service)
+      highlight_color: "#42A5F5"
+      size: 50
+      label_color: "#FFFFFF"
+      icon: "window"
+  
+  # Agent settings
+  agent:
+    sprite: "assets/character.png"
+    color: "#FFEB3B"  # Yellow highlight
+    size: 30
+    animation_speed: 0.2  # Seconds per frame
+  
+  # Kitchen layout - node positions (pixel coordinates)
+  # Arranged in a logical kitchen workflow:
+  # - Ingredients at top (sources)
+  # - Processing in middle
+  # - Service at right (delivery)
+  # - Floor at center (starting point)
+  layout:
+    nodes:
+      0:  # Floor (center)
+        x: 400
+        y: 350
+        label: "Start"
+        
+      1:  # PotatoBin (top-left)
+        x: 200
+        y: 150
+        label: "Potato Bin"
+        
+      2:  # TomatoBin (top-right)
+        x: 600
+        y: 150
+        label: "Tomato Bin"
+        
+      3:  # Stove (bottom-left)
+        x: 200
+        y: 550
+        label: "Stove"
+        
+      4:  # CutBoard (bottom-right)
+        x: 600
+        y: 550
+        label: "Cut Board"
+        
+      5:  # ServiceWindow (far right)
+        x: 800
+        y: 350
+        label: "Service"
+  
+  # Edge visual properties
+  edges:
+    color: "#616161"  # Gray
+    highlight_color: "#9E9E9E"
+    width: 3
+    arrow_size: 10
+    travel_animation: true  # Show dots moving along path
+  
+  # UI styling
+  ui:
+    background_color: "#212121"  # Dark gray
+    panel_color: "#333333"
+    text_color: "#FFFFFF"
+    font_family: "Arial"
+    font_size: 14
+    header_font_size: 18
+    
+    # Progress bars
+    progress_bar:
+      width: 100
+      height: 8
+      background: "#424242"
+      fill_color: "#4CAF50"
+      warning_color: "#FF9800"
+      danger_color: "#F44336"
+    
+    # Control buttons
+    controls:
+      play_color: "#4CAF50"
+      pause_color: "#FFC107"
+      stop_color: "#F44336"
+      button_size: 40
+  
+  # Order display
+  orders:
+    panel_width: 200
+    item_size: 30
+    ttl_warning_threshold: 20  # Show warning when < 20 ticks remain
+    ttl_danger_threshold: 10   # Show danger when < 10 ticks remain
+  
+  # Inventory display
+  inventory:
+    slot_size: 40
+    slot_spacing: 10
+    max_slots: 2
+    background: "#424242"
+    border_color: "#757575"
+    border_width: 2
+  
+  # Animation settings
+  animation:
+    smooth_movement: true
+    movement_speed: 5  # Pixels per frame during interpolation
+    station_pulse: true  # Pulse animation for busy stations
+    pulse_speed: 0.5
+    order_blink: true  # Blink orders when TTL is low
+    blink_speed: 0.3
+  
+  # Playback settings
+  playback:
+    default_speed: 1.0
+    speed_options: [0.25, 0.5, 1.0, 2.0, 5.0]
+    frame_skip_threshold: 5.0  # Skip rendering frames when speed > 5x

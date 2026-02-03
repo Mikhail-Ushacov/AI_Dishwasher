@@ -34,11 +34,13 @@ class KitchenWorld:
         
         self.order_counter = 0
         self.item_uid_counter = 0
+        self.completed_orders = 0
         
         for s in self.stations.values():
             s.held_item = None
             s.is_busy = False
             s.timer = 0
+            s.output_item_id = None
             
         self.spawn_order()
 
@@ -62,7 +64,7 @@ class KitchenWorld:
             self.orders = active_orders
             
             if len(self.orders) < self.config['simulation']['max_orders']:
-                if random.random() < 0.02:
+                if random.random() < 0.05:
                     self.spawn_order()
                     
         return expired_count
@@ -85,7 +87,7 @@ class KitchenWorld:
         )
         
         if not result.success:
-            return -0.1, result.info # Small penalty for invalid interaction
+            return 0.0, result.info
             
         info_parts = result.info.split('_')
         action_type = info_parts[0]
@@ -108,9 +110,10 @@ class KitchenWorld:
             duration = int(info_parts[3])
             
             item = self.inventory.pop(inv_idx)
-            item.type_id = out_item_id # Transform
+            # item.type_id = out_item_id  # <-- REMOVED: Don't transform immediately
             
             current_station.held_item = item
+            current_station.output_item_id = out_item_id  # Set the target
             current_station.is_busy = True
             current_station.timer = duration
             
@@ -121,8 +124,10 @@ class KitchenWorld:
             
             self.inventory.pop(inv_idx)
             self.orders = [o for o in self.orders if o.order_id != order_id]
+            self.completed_orders += 1
+            return self.config['simulation']['success_reward'], result.info
             
-        return result.reward, result.info
+        return 0.0, result.info
 
     def spawn_order(self):
         self.order_counter += 1
