@@ -1,0 +1,90 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "map_1.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 210,
+                "y": 158
+            }
+        },
+        "map_1.tmx#cabinets_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_1.tmx#decorations_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_1.tmx#doorswindowsstairs_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_1.tmx#floorswalls_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_1.tmx#kitchen_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_1.tmx#livingroom_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_2.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 275.3333333333333,
+                "y": 237.99999999999997
+            }
+        },
+        "map_2.tmx#Sprite-0002": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_2.tmx#Sprite-0003": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_2.tmx#cabinets_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_2.tmx#floorswalls_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_2.tmx#kitchen_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map_2.tmx#livingroom_LRK": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK",
+    "map.height": 32,
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 32,
+    "openFiles": [
+    ],
+    "project": "1..tiled-project",
+    "recentFiles": [
+        "map_2.tmx",
+        "map_1.tmx"
+    ]
+}

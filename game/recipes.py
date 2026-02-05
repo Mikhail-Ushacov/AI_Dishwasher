@@ -1,34 +1,24 @@
 from entities import Item
 
-# Словарь всех рецептов в игре
-# Формат: "Конечное_состояние": {"display_name": "Название", "steps": [список_состояний]}
-RECIPE_BOOK = {
-    "fried": {
-        "display_name": "Чипсы",
-        "image_key": "chips",
-        "steps": ["raw", "washed", "cut", "fried"]
+# Описание процессов: Инструмент -> (Исходное состояние -> (Новое состояние, Название, Ключ_картинки, Время_сек))
+PROCESSES = {
+    "sink": {
+        "raw": {"next_state": "washed", "name": "Помытая картошка", "image": "potato", "time": 3000}
     },
-    "baked": {
-        "display_name": "Печеная картошка",
-        "image_key": "potato_red",
-        "steps": ["raw", "washed", "baked"]
+    "table": {
+        "washed": {"next_state": "cut", "name": "Нарезанная картошка", "image": "potato", "time": 3000}
+    },
+    "gas-stove": {
+        "cut": {"next_state": "fried", "name": "Чипсы", "image": "chips", "time": 4000}
+    },
+    "oven": {
+        "washed": {"next_state": "baked", "name": "Печеная картошка", "image": "potato_red", "time": 5000}
     }
 }
 
-def get_next_state(item, tool_name):
-    """Определяет, в какое состояние перейдет предмет при использовании прибора"""
-    s = item.state
-    
-    if tool_name == "sink" and s == "raw":
-        return "washed"
-    
-    if tool_name == "table" and s == "washed":
-        return "cut"
-    
-    if tool_name == "gas-stove" and s == "cut":
-        return "fried"
-    
-    if tool_name == "oven" and s == "washed":
-        return "baked"
-    
-    return None # Если прибор не подходит для этого состояния
+def get_recipe_result(tool_name, item_state):
+    """Возвращает параметры трансформации или None, если действие невозможно"""
+    tool = PROCESSES.get(tool_name)
+    if tool and item_state in tool:
+        return tool[item_state]
+    return None

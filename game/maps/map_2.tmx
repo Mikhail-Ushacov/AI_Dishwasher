@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="67">
  <tileset firstgid="1" name="floorswalls_LRK" tilewidth="16" tileheight="16" tilecount="224" columns="14">
-  <image source="assets/pixelinterior_LRK/floorswalls_LRK.png" width="224" height="256"/>
+  <image source="../assets/pixelinterior_LRK/floorswalls_LRK.png" width="224" height="256"/>
  </tileset>
  <tileset firstgid="225" name="kitchen_LRK" tilewidth="16" tileheight="16" tilecount="650" columns="26">
-  <image source="assets/pixelinterior_LRK/kitchen_LRK.png" width="416" height="400"/>
+  <image source="../assets/pixelinterior_LRK/kitchen_LRK.png" width="416" height="400"/>
  </tileset>
  <tileset firstgid="875" name="cabinets_LRK" tilewidth="16" tileheight="16" tilecount="1175" columns="47">
-  <image source="assets/pixelinterior_LRK/cabinets_LRK.png" width="752" height="405"/>
+  <image source="../assets/pixelinterior_LRK/cabinets_LRK.png" width="752" height="405"/>
  </tileset>
  <tileset firstgid="2050" name="Sprite-0002" tilewidth="16" tileheight="16" tilecount="1" columns="1">
-  <image source="assets/Sprite-0002.png" width="16" height="16"/>
+  <image source="../assets/Sprite-0002.png" width="16" height="16"/>
  </tileset>
  <tileset firstgid="2051" name="Sprite-0003" tilewidth="16" tileheight="16" tilecount="12" columns="4">
-  <image source="assets/Sprite-0003.png" width="64" height="48"/>
+  <image source="../assets/Sprite-0003.png" width="64" height="48"/>
  </tileset>
  <tileset firstgid="2063" name="livingroom_LRK" tilewidth="16" tileheight="16" tilecount="1014" columns="39">
-  <image source="assets/pixelinterior_LRK/livingroom_LRK.png" width="624" height="416"/>
+  <image source="../assets/pixelinterior_LRK/livingroom_LRK.png" width="624" height="416"/>
  </tileset>
  <layer id="1" name="floor" width="32" height="32">
   <data encoding="csv">

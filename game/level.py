@@ -10,42 +10,47 @@ class LevelManager:
         self.tile_size = 16
         self.collision_rects = []
         self.interactive_objects = []
-        self.map_name = "map_1" # Дефолтная карта
+        self.map_name = ""
+
+    def get_available_maps(self):
+        maps_dir = os.path.join(BASE_DIR, "maps")
+        if not os.path.exists(maps_dir):
+            os.makedirs(maps_dir)
+            return []
+        return [f.replace(".tmx", "") for f in os.listdir(maps_dir) if f.endswith(".tmx")]
 
     def load_map(self, map_name, player):
         self.map_name = map_name
-        tmx_path = os.path.join(BASE_DIR, f"{map_name}.tmx")
-        self.tmx_data = load_pygame(tmx_path)
-        self.tile_size = self.tmx_data.tilewidth
+        tmx_path = os.path.join(BASE_DIR, "maps", f"{map_name}.tmx")
+        
+        try:
+            self.tmx_data = load_pygame(tmx_path)
+            self.tile_size = self.tmx_data.tilewidth
+            self.collision_rects = []
+            self.interactive_objects = []
 
-        self.collision_rects = []
-        self.interactive_objects = []
-
-        for obj in self.tmx_data.objects:
-            rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
-            
-            if obj.name:
-                self.interactive_objects.append({"name": obj.name, "rect": rect})
-            
-            # order и player не стены
-            if obj.name not in ["player", "order"]:
-                 self.collision_rects.append(rect)
-
-            if obj.name == "player":
-                player.set_pos(int(obj.x // self.tile_size), int(obj.y // self.tile_size))
+            for obj in self.tmx_data.objects:
+                rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+                if obj.name:
+                    self.interactive_objects.append({"name": obj.name, "rect": rect})
+                if obj.name not in ["player", "order"]:
+                     self.collision_rects.append(rect)
+                if obj.name == "player":
+                    player.set_pos(int(obj.x // self.tile_size), int(obj.y // self.tile_size))
+            return True
+        except Exception as e:
+            print(f"Ошибка загрузки карты: {e}")
+            return False
 
     def can_move(self, cell_x, cell_y):
-        test_rect = pygame.Rect(
-            cell_x * self.tile_size,
-            cell_y * self.tile_size,
-            self.tile_size, self.tile_size
-        )
+        test_rect = pygame.Rect(cell_x * self.tile_size, cell_y * self.tile_size, self.tile_size, self.tile_size)
         for rect in self.collision_rects:
             if test_rect.colliderect(rect):
                 return False
         return True
 
     def draw(self, screen):
+        if not self.tmx_data: return
         for layer in self.tmx_data.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
