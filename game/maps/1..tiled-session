@@ -3,19 +3,48 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "map_3.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
         "": {
             "scaleInDock": 1
         },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/floorswalls_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/cabinets_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/decorations_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/doorswindowsstairs_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/floorswalls_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/kitchen_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/livingroom_LRK.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "map_1.tmx": {
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 210,
-                "y": 158
+                "x": 269,
+                "y": 309.75
             }
         },
         "map_1.tmx#cabinets_LRK": {
@@ -43,11 +72,14 @@
             "scaleInEditor": 1
         },
         "map_2.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 0,
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 5.5,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 275.3333333333333,
-                "y": 237.99999999999997
+                "x": 257.72727272727275,
+                "y": 256.0909090909091
             }
         },
         "map_2.tmx#Sprite-0002": {
@@ -73,18 +105,56 @@
         "map_2.tmx#livingroom_LRK": {
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "map_3.tmx": {
+            "expandedObjectLayers": [
+                3
+            ],
+            "scale": 8,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 25.3125,
+                "y": 42.625
+            }
+        },
+        "map_3.tmx#Sprite-0002": {
+            "scaleInDock": 1
         }
     },
     "last.imagePath": "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK",
-    "map.height": 32,
+    "map.height": 5,
+    "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 32,
+    "map.width": 5,
     "openFiles": [
+        "map_1.tmx",
+        "map_2.tmx",
+        "map_3.tmx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/decorations_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/doorswindowsstairs_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/floorswalls_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/kitchen_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/livingroom_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/cabinets_LRK.tsx"
     ],
     "project": "1..tiled-project",
     "recentFiles": [
+        "map_1.tmx",
         "map_2.tmx",
-        "map_1.tmx"
-    ]
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/cabinets_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/livingroom_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/kitchen_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/floorswalls_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/doorswindowsstairs_LRK.tsx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/decorations_LRK.tsx",
+        "map_3.tmx",
+        "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/floorswalls_LRK.tsx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
 }
