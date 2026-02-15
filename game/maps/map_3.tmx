@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="5" height="5" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="14">
+ <tileset firstgid="1" source="../assets/pixelinterior_LRK/floorswalls_LRK.tsx"/>
+ <tileset firstgid="225" source="../assets/pixelinterior_LRK/kitchen_LRK.tsx"/>
+ <tileset firstgid="875" name="Sprite-0002" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+  <image source="../assets/Sprite-0002.png" width="16" height="16"/>
+ </tileset>
+ <layer id="1" name="Слой тайлов 1" width="5" height="5">
+  <data encoding="csv">
+78,77,78,78,78,
+90,91,91,91,93,
+90,91,91,91,93,
+90,91,91,91,93,
+104,105,105,105,107
+</data>
+ </layer>
+ <layer id="2" name="Слой тайлов 2" width="5" height="5">
+  <data encoding="csv">
+255,256,257,258,259,
+0,0,0,0,0,
+0,0,0,0,0,
+0,273,274,284,285,
+255,299,300,310,311
+</data>
+ </layer>
+ <layer id="4" name="Слой тайлов 3" width="5" height="5">
+  <data encoding="csv">
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,0,0,0,
+875,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="3" name="Слой объектов 1">
+  <object id="1" x="-15.6364" y="-9.81818" width="15.4545" height="101.273"/>
+  <object id="2" x="80.0909" y="-10.091" width="15.4545" height="101.273"/>
+  <object id="3" x="-0.727273" y="-14.7273" width="80.7273" height="14.3636"/>
+  <object id="4" x="-1.36364e-05" y="80.0909" width="80.7273" height="14.3636"/>
+  <object id="5" name="order" x="-0.225296" y="64.3043" width="16.1818" height="16"/>
+  <object id="6" name="oven" x="48.2688" y="48.2451" width="31.4545" height="25.8182"/>
+  <object id="7" name="gas-stove" x="48.3636" y="-0.181818" width="31.8182" height="15.8182"/>
+  <object id="8" name="table" x="0" y="0.363636" width="16.1818" height="15.2727"/>
+  <object id="10" name="sink" x="16.9091" y="0" width="30.7273" height="15.6364"/>
+  <object id="12" name="fridge" x="19.2727" y="55.2727" width="25.2727" height="25.0909"/>
+ </objectgroup>
+</map>
