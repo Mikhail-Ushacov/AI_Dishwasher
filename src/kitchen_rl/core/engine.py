@@ -18,9 +18,11 @@ class KitchenWorld:
         self.stations: Dict[int, StationState] = {}
         for nid, data in self.config['graph']['nodes'].items():
             self.stations[nid] = StationState(
-                node_id=nid,
+                id=str(nid),  # Convert to string for compatibility
                 name=data['name'],
                 station_type=data['type'],
+                x=0,  # Graph-based doesn't use coordinates
+                y=0,
                 source_item_id=data.get('item_id')
             )
             

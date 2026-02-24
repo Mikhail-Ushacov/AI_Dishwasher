@@ -1,7 +1,7 @@
 """Data models for replay recording."""
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 import uuid
 
@@ -42,18 +42,22 @@ class ItemState:
 @dataclass
 class StationState:
     """Serializable state of a station."""
-    node_id: int
+    station_id: str
     name: str
     station_type: str
+    x: int  # Grid coordinate
+    y: int  # Grid coordinate
     held_item: Optional[ItemState] = None
     is_busy: bool = False
     timer: int = 0
     
     def to_dict(self) -> Dict:
         return {
-            "node_id": self.node_id,
+            "station_id": self.station_id,
             "name": self.name,
             "station_type": self.station_type,
+            "x": self.x,
+            "y": self.y,
             "held_item": self.held_item.to_dict() if self.held_item else None,
             "is_busy": self.is_busy,
             "timer": self.timer
@@ -78,19 +82,36 @@ class OrderState:
 
 
 @dataclass
+class AgentState:
+    """Serializable state of the agent."""
+    x: int
+    y: int
+    facing_x: int
+    facing_y: int
+    
+    def to_dict(self) -> Dict:
+        return {
+            "x": self.x,
+            "y": self.y,
+            "facing_x": self.facing_x,
+            "facing_y": self.facing_y
+        }
+
+
+@dataclass
 class StateSnapshot:
     """Complete world state at a specific tick."""
     tick: int
-    agent_node: int
+    agent: AgentState  # Changed from agent_node to agent position
     inventory: List[ItemState]
-    stations: Dict[int, StationState]
+    stations: Dict[str, StationState]  # Changed key type from int to str
     orders: List[OrderState]
     completed_orders: int = 0
     
     def to_dict(self) -> Dict:
         return {
             "tick": self.tick,
-            "agent_node": self.agent_node,
+            "agent": self.agent.to_dict(),
             "inventory": [item.to_dict() for item in self.inventory],
             "stations": {k: v.to_dict() for k, v in self.stations.items()},
             "orders": [order.to_dict() for order in self.orders],
@@ -106,9 +127,11 @@ class ReplayEvent:
     duration: int = 0  # For actions with duration (e.g., movement)
     
     # Action-specific fields
-    action: Optional[str] = None  # 'MOVE', 'INTERACT'
-    target: Optional[int] = None  # Node ID for MOVE, Station for INTERACT
+    action: Optional[str] = None  # 'MOVE_UP', 'MOVE_DOWN', 'MOVE_LEFT', 'MOVE_RIGHT', 'INTERACT'
+    target_pos: Optional[Tuple[int, int]] = None  # (x, y) coordinates for movement target
+    facing: Optional[Tuple[int, int]] = None  # (dx, dy) facing direction for interactions
     result: Optional[str] = None  # Result info (e.g., 'Pickup_1')
+    reward: Optional[float] = None  # Reward earned from this action
     
     # State snapshot (for STATE events)
     snapshot: Optional[StateSnapshot] = None
@@ -126,10 +149,14 @@ class ReplayEvent:
         
         if self.action:
             result["action"] = self.action
-        if self.target is not None:
-            result["target"] = self.target
+        if self.target_pos is not None:
+            result["target_pos"] = self.target_pos
+        if self.facing is not None:
+            result["facing"] = self.facing
         if self.result:
             result["result"] = self.result
+        if self.reward is not None:
+            result["reward"] = self.reward
         if self.snapshot:
             result["snapshot"] = self.snapshot.to_dict()
         if self.order_id is not None:

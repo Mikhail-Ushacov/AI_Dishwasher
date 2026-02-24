@@ -1,10 +1,10 @@
-"""Episode recorder that wraps KitchenGraphEnv to record replays."""
+"""Episode recorder for Grid-based Kitchen environment."""
 
 from typing import Optional, Tuple, Dict, Any, Union
 from pathlib import Path
 from datetime import datetime
 
-from ..env.kitchen_env import KitchenGraphEnv
+from ..env.grid_env import KitchenGridEnv
 from .models import (
     ReplayMetadata, ReplayEvent, StateSnapshot, AgentState,
     ItemState, StationState, OrderState
@@ -12,12 +12,24 @@ from .models import (
 from .serializers import JSONLSerializer
 
 
-class EpisodeRecorder:
-    """Wrapper around KitchenGraphEnv that records episodes for replay.
+# Action constants matching engine_grid.py
+ACT_UP, ACT_DOWN, ACT_LEFT, ACT_RIGHT, ACT_INTERACT = 0, 1, 2, 3, 4
+ACTION_NAMES = {
+    ACT_UP: "MOVE_UP",
+    ACT_DOWN: "MOVE_DOWN", 
+    ACT_LEFT: "MOVE_LEFT",
+    ACT_RIGHT: "MOVE_RIGHT",
+    ACT_INTERACT: "INTERACT",
+    5: "WAIT"  # questionable 
+}
+
+
+class GridEpisodeRecorder:
+    """Wrapper around KitchenGridEnv that records episodes for replay.
     
     Usage:
-        base_env = KitchenGraphEnv()
-        env = EpisodeRecorder(base_env, output_dir="replays/")
+        base_env = KitchenGridEnv()
+        env = GridEpisodeRecorder(base_env, output_dir="replays/")
         
         obs, info = env.reset()
         while not done:
@@ -29,15 +41,15 @@ class EpisodeRecorder:
     
     def __init__(
         self,
-        env: KitchenGraphEnv,
+        env: KitchenGridEnv,
         output_dir: str = "replays",
         enabled: bool = True,
         keyframe_interval: int = 10,
-        filename_prefix: str = "episode"
+        filename_prefix: str = "grid_episode"
     ):
         """
         Args:
-            env: The base KitchenGraphEnv to wrap
+            env: The base KitchenGridEnv to wrap
             output_dir: Directory to save replay files
             enabled: Whether recording is active
             keyframe_interval: Save full state every N ticks
@@ -74,11 +86,15 @@ class EpisodeRecorder:
         # Store action for recording
         self._last_action = int(action)
         
+        # Get current agent position before step
+        world = self.env.world
+        prev_pos = (world.agent.x, world.agent.y)
+        
         # Execute step in base environment
         obs, reward, terminated, truncated, info = self.env.step(action)
         
         if self.enabled:
-            self._record_step(action, reward, terminated, truncated, info)
+            self._record_step(action, prev_pos, reward, terminated, truncated, info)
             
         self._episode_reward += reward
         
@@ -95,8 +111,6 @@ class EpisodeRecorder:
     
     def _start_recording(self):
         """Initialize a new recording session."""
-        # ! NOTE: Added microseconds (%f) to prevent filename collisions; the simulation is fast enough to start multiple episodes per second.
-        # ! Consideration for future development: use uuid.uuid4() to guarantee uniqueness across environments.
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         filename = f"{self.filename_prefix}_{timestamp}.jsonl"
         filepath = self.output_dir / filename
@@ -107,9 +121,15 @@ class EpisodeRecorder:
         
         # Create metadata
         world = self.env.world
+        map_layout = self._extract_map_layout()
+        
+        # Include TMX map name if available
+        if hasattr(self.env, 'tmx_map_name') and self.env.tmx_map_name:
+            map_layout['tmx_map'] = self.env.tmx_map_name
+        
         metadata = ReplayMetadata(
-            config_path=world.config.get('_config_path', ''),
-            map_layout=self._extract_map_layout()
+            config_path=self.env.config_path if hasattr(self.env, 'config_path') else '',
+            map_layout=map_layout
         )
         
         self._serializer.write_metadata(metadata)
@@ -124,46 +144,53 @@ class EpisodeRecorder:
         self._last_action_time = 0
         self._completed_orders = 0
         
-    def _record_step(self, action: int, reward: float, terminated: bool, truncated: bool, info: Dict):
+    def _record_step(self, action: int, prev_pos: Tuple[int, int], reward: float, 
+                     terminated: bool, truncated: bool, info: Dict):
         """Record a single step."""
         world = self.env.world
         current_tick = world.global_time
         
-        # Determine action type and duration
-        if action < self.env.num_nodes:
-            # Movement action
-            target_node = action
-            # Get movement cost from navigation
-            from_node = self._get_previous_node()
-            if from_node is not None:
-                duration = world.nav.move_cost(from_node, target_node)
-            else:
-                duration = 1
+        # Determine action type
+        action_name = ACTION_NAMES.get(action, "UNKNOWN")
+        
+        event_info = info.get('event_info', '')
+
+        if action < 4:  # Movement action
+            # Calculate target position
+            dx, dy = 0, 0
+            if action == ACT_UP:
+                dy = -1
+            elif action == ACT_DOWN:
+                dy = 1
+            elif action == ACT_LEFT:
+                dx = -1
+            elif action == ACT_RIGHT:
+                dx = 1
                 
+            target_pos = (prev_pos[0] + dx, prev_pos[1] + dy)
+            duration = 1  # Grid movement always takes 1 tick
+            
             event = ReplayEvent(
                 tick=self._last_action_time,
                 event_type="ACTION",
                 duration=duration,
-                action="MOVE",
-                result=f"Move_{from_node}_to_{target_node}",
+                action=action_name,
+                target_pos=target_pos,
+                facing=(dx, dy),
+                result=event_info,
                 reward=reward
             )
-        else:
-            # Interaction action
-            event_info = info.get('event_info', '')
+        else:  # Interaction action
             event = ReplayEvent(
                 tick=self._last_action_time,
                 event_type="ACTION",
                 duration=1,
-                action="INTERACT",
+                action=action_name,
+                facing=world.agent.facing,
                 result=event_info,
                 reward=reward
             )
             
-            # Track completed orders
-            if event_info and event_info.startswith('Deliver'):
-                self._completed_orders += 1
-                
         self._serializer.write_event(event)
         
         # Record state snapshot at keyframe intervals
@@ -186,7 +213,7 @@ class EpisodeRecorder:
         
         # Convert stations
         stations = {}
-        for node_id, station in world.stations.items():
+        for station_id, station in world.stations.items():
             held_item = None
             if station.held_item:
                 held_item = ItemState(
@@ -194,7 +221,7 @@ class EpisodeRecorder:
                     uid=station.held_item.uid
                 )
                 
-            stations[str(node_id)] = StationState(
+            stations[station_id] = StationState(
                 station_id=station.id,
                 name=station.name,
                 station_type=station.station_type,
@@ -216,12 +243,12 @@ class EpisodeRecorder:
             for order in world.orders
         ]
         
-        # Create agent state (for graph-based, node_id is used as x)
+        # Create agent state
         agent = AgentState(
-            x=world.agent_node,
-            y=0,
-            facing_x=0,
-            facing_y=0
+            x=world.agent.x,
+            y=world.agent.y,
+            facing_x=world.agent.facing[0],
+            facing_y=world.agent.facing[1]
         )
         
         snapshot = StateSnapshot(
@@ -230,7 +257,8 @@ class EpisodeRecorder:
             inventory=inventory,
             stations=stations,
             orders=orders,
-            completed_orders=self._completed_orders
+            # CRITICAL FIX: Get completed_orders directly from the world state
+            completed_orders=world.completed_orders 
         )
         
         event = ReplayEvent(
@@ -248,26 +276,26 @@ class EpisodeRecorder:
             self._serializer.close()
             self._serializer = None
             
-    def _extract_map_layout(self) -> Dict[int, Dict[str, Any]]:
-        """Extract node positions and types for visualization."""
-        layout = {}
+    def _extract_map_layout(self) -> Dict[str, Any]:
+        """Extract grid layout for visualization."""
         world = self.env.world
+        layout = {
+            "width": world.layout.width,
+            "height": world.layout.height,
+            "grid": world.layout.grid.tolist(),
+            "stations": {}
+        }
         
-        for node_id, node_data in world.config['graph']['nodes'].items():
-            layout[node_id] = {
-                'type': node_data['type'],
-                'name': node_data['name'],
-                'item_id': node_data.get('item_id')
+        for station_id, station in world.stations.items():
+            layout["stations"][station_id] = {
+                "type": station.station_type,
+                "name": station.name,
+                "x": station.x,
+                "y": station.y,
+                "item_id": station.source_item_id
             }
             
         return layout
-        
-    def _get_previous_node(self) -> Optional[int]:
-        """Get the node the agent was at before the last action."""
-        # This is a simplification - in practice, you might need to track this explicitly
-        # For now, we'll use the agent's current node and work backwards
-        # A more robust solution would track the full path
-        return None  # Placeholder - implement if needed
         
     # Delegate all other methods to wrapped env
     def __getattr__(self, name: str) -> Any:

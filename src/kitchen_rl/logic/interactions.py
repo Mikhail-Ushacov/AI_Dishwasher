@@ -28,25 +28,46 @@ class ProcessInteraction(InteractionStrategy):
     def handle(self, station: StationState, inventory: List[Item], 
                orders: List[Order], config: Dict) -> InteractionResult:
         
+        # 1. Retrieve finished item
         if station.held_item and not station.is_busy:
             if len(inventory) >= config['simulation']['max_inventory']:
                 return InteractionResult(False, info="Inventory Full")
             return InteractionResult(True, info="Retrieve_Processed")
 
+        # 2. Place raw item
         if not station.held_item:
             recipes = config['recipes']
             for idx, item in enumerate(inventory):
+                # FIX: Check for type matches and common aliases
                 match = next((r for r in recipes 
                               if r['input'] == item.type_id 
-                              and r['station'] == station.name), None)
+                              and self._station_matches(station, r['station'])), None)
                 
                 if match:
                     return InteractionResult(True, 
                                              info=f"Place_{idx}_{match['output']}_{match['time']}")
             
             return InteractionResult(False, info="No Valid Recipe Item")
-
         return InteractionResult(False, info="Station Busy")
+
+    def _station_matches(self, station, recipe_station_name):
+        """Lenient matching for station names."""
+        s_name = station.name.lower()
+        r_name = recipe_station_name.lower()
+        
+        # Direct match
+        if r_name in s_name: return True
+        
+        # Common Aliases
+        aliases = {
+            "stove": ["gas-stove", "stove", "oven", "cooker"],
+            "cutboard": ["table", "board", "cut", "prep"]
+        }
+        
+        for key, list_of_aliases in aliases.items():
+            if r_name == key and any(a in s_name for a in list_of_aliases):
+                return True
+        return False
 
 class DeliveryInteraction(InteractionStrategy):
     def handle(self, station: StationState, inventory: List[Item], 
@@ -60,12 +81,23 @@ class DeliveryInteraction(InteractionStrategy):
         
         return InteractionResult(False, info="Wrong Item")
 
+class TrashInteraction(InteractionStrategy):
+    def handle(self, station: StationState, inventory: List[Item], 
+               orders: List[Order], config: Dict) -> InteractionResult:
+        
+        if not inventory:
+            return InteractionResult(False, info="Nothing to trash")
+            
+        # Trash the last item (or we could specify index, defaulting to last/held)
+        return InteractionResult(True, info="Trash_0")
+
 class InteractionManager:
     def __init__(self):
         self.strategies = {
             "source": SourceInteraction(),
             "process": ProcessInteraction(),
             "delivery": DeliveryInteraction(),
+            "trash": TrashInteraction(),
             "floor": None
         }
 

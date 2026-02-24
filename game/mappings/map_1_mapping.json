@@ -1,0 +1,48 @@
+{
+  "description": "Maps replay node IDs to TMX grid coordinates for map_1",
+  "mappings": {
+    "0": {
+      "name": "Floor",
+      "type": "floor",
+      "tmx_object": null,
+      "grid_x": 6,
+      "grid_y": 10,
+      "note": "Central floor area - agent default position"
+    },
+    "1": {
+      "name": "PotatoBin",
+      "type": "source",
+      "tmx_object": "fridge",
+      "grid_x": 13,
+      "grid_y": 3
+    },
+    "2": {
+      "name": "TomatoBin",
+      "type": "source",
+      "tmx_object": "fridge",
+      "grid_x": 13,
+      "grid_y": 2
+    },
+    "3": {
+      "name": "Stove",
+      "type": "process",
+      "tmx_object": "gas-stove",
+      "grid_x": 1,
+      "grid_y": 4
+    },
+    "4": {
+      "name": "CutBoard",
+      "type": "process",
+      "tmx_object": "table",
+      "grid_x": 5,
+      "grid_y": 4
+    },
+    "5": {
+      "name": "ServiceWindow",
+      "type": "delivery",
+      "tmx_object": "order",
+      "grid_x": 2,
+      "grid_y": 13
+    }
+  }
+}

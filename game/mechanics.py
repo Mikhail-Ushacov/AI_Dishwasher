@@ -6,13 +6,14 @@ from settings import *
 from recipes import get_recipe_result
 
 class KitchenManager:
-    def __init__(self):
+    def __init__(self, ui_manager=None):
         self.score = 0
         self.possible_orders = {"fried": "Чипсы", "baked": "Печеная картошка"}
         self.current_order = None
         self.generate_new_order()
         self.item_images = {}
         self._load_assets()
+        self.ui_manager = ui_manager
 
     def _load_assets(self):
         def load(key, filename, color):
@@ -58,12 +59,14 @@ class KitchenManager:
                 if held.state == self.current_order:
                     self.score += 10
                     ui_manager.show_popup("ВЕРНО! +10", rect)
+                    ui_manager.score_stack.add(10)
                     player.held_item = None
                     self.generate_new_order()
                 else:
                     # Теперь счет может уходить в минус
                     self.score -= 25
                     ui_manager.show_popup("ОШИБКА! -25", rect)
+                    ui_manager.score_stack.add(-25)
                     player.held_item = None
             return
 

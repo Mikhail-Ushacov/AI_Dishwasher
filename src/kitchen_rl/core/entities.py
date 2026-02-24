@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Tuple
 
 @dataclass
 class Item:
@@ -19,11 +19,21 @@ class Order:
         return self.time_remaining <= 0
 
 @dataclass
+class PlayerState:
+    """Represents the mutable state of the agent/player."""
+    x: int
+    y: int
+    facing: Tuple[int, int] = (0, 1)  # Vector direction (dx, dy), default facing Down
+    held_item: Optional[Item] = None
+
+@dataclass
 class StationState:
     """Represents the mutable state of a station."""
-    node_id: int
+    id: str  # Unique ID (was node_id)
     name: str
     station_type: str
+    x: int  # Grid coordinate
+    y: int  # Grid coordinate
     source_item_id: Optional[int] = None
     
     held_item: Optional[Item] = None

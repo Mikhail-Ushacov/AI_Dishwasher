@@ -1,0 +1,85 @@
+simulation:
+  max_steps: 1000
+  time_step_penalty: -0.01
+  collision_penalty: -0.1
+  failure_penalty: -0.1
+  expired_penalty: 5.0
+  success_reward: 20.0
+  subgoal_reward: 0.0
+  max_inventory: 1
+  max_orders: 3
+  order_ttl: 60
+  order_spawn_rate: 0.4
+
+grid:
+  width: 7
+  height: 7
+  # ASCII Layout: 
+  # . = Walkable Floor
+  # # = Wall
+  # S = Source station
+  # P = Process station
+  # D = Delivery station
+  layout_str: |
+    #######
+    #S.S.S#
+    #.....#
+    #..P..#
+    #..P..#
+    #..D..#
+    #######
+  start_pos: [3, 2]  # x, y (center of open area)
+  
+  # Register coordinate-specific stations
+  stations:
+    station_potato:
+      x: 1
+      y: 1
+      type: "source"
+      name: "PotatoBin"
+      item_id: 1
+    station_tomato:
+      x: 3
+      y: 1
+      type: "source"
+      name: "TomatoBin"
+      item_id: 3
+    station_garbage:
+      x: 5
+      y: 1
+      type: "trash"
+      name: "GarbageBin"
+      item_id: 0
+    station_stove:
+      x: 3
+      y: 3
+      type: "process"
+      name: "Stove"
+    station_cutboard:
+      x: 3
+      y: 4
+      type: "process"
+      name: "CutBoard"
+    station_delivery:
+      x: 3
+      y: 5
+      type: "delivery"
+      name: "ServiceWindow"
+
+items:
+  0: "Empty"
+  1: "RawPotato"
+  2: "CookedPotato"
+  3: "RawTomato"
+  4: "SlicedTomato"
+
+recipes:
+  # InputID + StationName -> OutputID, Duration
+  - input: 1
+    station: "Stove"
+    output: 2
+    time: 15
+  - input: 3
+    station: "CutBoard"
+    output: 4
+    time: 8
