@@ -41,8 +41,15 @@
       "name": "ServiceWindow",
       "type": "delivery",
       "tmx_object": "order",
-      "grid_x": 0,
-      "grid_y": 4
+      "grid_x": 1,
+      "grid_y": 2
+    },
+    "6": {
+      "name": "GarbageBin",
+      "type": "trash",
+      "tmx_object": "GarbageBin",
+      "grid_x": 2,
+      "grid_y": 0
     }
   }
 }

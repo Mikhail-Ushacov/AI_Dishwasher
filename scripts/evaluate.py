@@ -24,6 +24,8 @@ from sb3_contrib import MaskablePPO
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
+from kitchen_rl.evaluation import EvaluationRunner, get_scenario, EvaluationReporter
+
 
 def get_environment_classes(env_type):
     """
@@ -47,18 +49,25 @@ def get_environment_classes(env_type):
         return KitchenGraphEnv, EpisodeRecorder, HeuristicAgent
 
 
-def run_heuristic(env_type='graph', episodes=5, record=False, record_dir="replays", tmx_map=None):
+def run_heuristic(env_type='graph', episodes=5, record=False, record_dir="replays", tmx_map=None, map_config=None):
     """Runs the heuristic baseline agent."""
     print(f"--- Running Heuristic Baseline ({env_type.upper()}, {episodes} eps) ---")
     if tmx_map:
         print(f"Using TMX map: {tmx_map}")
+    if map_config:
+        print(f"Using map config: {map_config}")
     
     # Get environment-specific classes
     EnvClass, RecorderClass, HeuristicAgentClass = get_environment_classes(env_type)
     
-    # Create environment (pass tmx_map for grid environments)
-    if env_type == 'grid' and tmx_map:
-        env = EnvClass(tmx_map=tmx_map)
+    # Create environment (pass tmx_map/map_config for grid environments)
+    if env_type == 'grid':
+        if tmx_map:
+            env = EnvClass(tmx_map=tmx_map)
+        elif map_config:
+            env = EnvClass(config_path=map_config)
+        else:
+            env = EnvClass()
     else:
         env = EnvClass()
     
@@ -100,20 +109,28 @@ def run_heuristic(env_type='graph', episodes=5, record=False, record_dir="replay
     return scores
 
 
-def run_rl_agent(env_type='graph', model_path=None, episodes=5, record=False, record_dir="replays", tmx_map=None):
+def run_rl_agent(env_type='graph', model_path=None, episodes=5, record=False, record_dir="replays", tmx_map=None, obs_type='absolute', map_config=None):
     """Runs the trained PPO model."""
     print(f"--- Running PPO Agent ({env_type.upper()}, {episodes} eps) ---")
     if tmx_map:
         print(f"Using TMX map: {tmx_map}")
+    if map_config:
+        print(f"Using map config: {map_config}")
+    print(f"Observation type: {obs_type}")
     
     # Get environment-specific classes
     EnvClass, RecorderClass, _ = get_environment_classes(env_type)
     
-    # Create environment (pass tmx_map for grid environments)
-    if env_type == 'grid' and tmx_map:
-        env = EnvClass(tmx_map=tmx_map)
+    # Create environment (pass tmx_map/obs_type for grid environments)
+    if env_type == 'grid':
+        if tmx_map:
+            env = EnvClass(tmx_map=tmx_map, obs_type=obs_type)
+        elif map_config:
+            env = EnvClass(config_path=map_config, obs_type=obs_type)
+        else:
+            env = EnvClass(obs_type=obs_type)
     else:
-        env = EnvClass()
+        env = EnvClass(obs_type=obs_type)
     
     # Wrap with recorder if enabled
     if record:
@@ -228,7 +245,68 @@ Examples:
         help='TMX map name to use (e.g., map_1, map_2) for grid environment'
     )
     
+    parser.add_argument(
+        '--map-config',
+        type=str,
+        default=None,
+        help='YAML map config to use (e.g., configs/grid_12x12.yaml) for grid environment'
+    )
+    
+    parser.add_argument(
+        '--obs-type',
+        type=str,
+        default='absolute',
+        choices=['absolute', 'relative'],
+        help='Observation type for grid environment (default: absolute)'
+    )
+    
+    parser.add_argument(
+        '--test',
+        type=str,
+        default=None,
+        choices=['size', 'layout', 'obs-comparison', 'full'],
+        help='Run specific test scenario'
+    )
+    
+    parser.add_argument(
+        '--model',
+        type=str,
+        default=None,
+        help='Path to model for test scenarios'
+    )
+    
     args = parser.parse_args()
+    
+    # Run test scenario if specified
+    if args.test:
+        if not args.model and not args.heuristic:
+            print("Error: --model is required for test scenarios (unless --heuristic is specified)")
+            return
+        
+        scenario = get_scenario(args.test)
+        runner = EvaluationRunner(
+            env_type=args.env_type,
+            episodes=args.episodes,
+            verbose=True
+        )
+        
+        results = runner.run_scenario(
+            scenario=scenario,
+            model_path=args.model,
+            run_heuristic=args.heuristic or not args.rl
+        )
+        
+        summary_results = []
+        for result in results:
+            if 'metrics' in result:
+                summary_results.append({
+                    'test_name': result['test_name'],
+                    'success_rate': result['metrics']['success_rate'],
+                    'gen_score': result.get('gen_score', 100.0)
+                })
+        
+        EvaluationReporter.print_summary_table(summary_results)
+        return
     
     # If neither specified, run both
     if not args.heuristic and not args.rl:
@@ -242,7 +320,8 @@ Examples:
             episodes=args.episodes,
             record=args.record,
             record_dir=args.record_dir,
-            tmx_map=args.tmx_map
+            tmx_map=args.tmx_map,
+            map_config=args.map_config
         )
     
     # Run RL agent
@@ -253,7 +332,9 @@ Examples:
             episodes=args.episodes,
             record=args.record,
             record_dir=args.record_dir,
-            tmx_map=args.tmx_map
+            tmx_map=args.tmx_map,
+            obs_type=args.obs_type,
+            map_config=args.map_config
         )
     
     if args.record:

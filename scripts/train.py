@@ -88,7 +88,7 @@ def get_environment_classes(env_type):
         )
 
 
-def make_env(env_type, config_path, enable_recording=False, recording_dir="replays", rank=0, tmx_map=None):
+def make_env(env_type, config_path, enable_recording=False, recording_dir="replays", rank=0, tmx_map=None, obs_type="absolute"):
     """
     Factory function to create environment with appropriate wrapper.
     
@@ -99,17 +99,16 @@ def make_env(env_type, config_path, enable_recording=False, recording_dir="repla
         recording_dir: Directory to save recordings
         rank: Process rank (for multi-env training)
         tmx_map: Optional TMX map name for grid environment
+        obs_type: Observation type ("absolute" or "relative")
     """
     EnvClass, RecorderClass, _, _ = get_environment_classes(env_type)
     
     def _init():
-        # Create environment (pass tmx_map for grid environments)
         if env_type == 'grid' and tmx_map:
-            env = EnvClass(config_path=config_path, tmx_map=tmx_map)
+            env = EnvClass(config_path=config_path, tmx_map=tmx_map, obs_type=obs_type)
         else:
-            env = EnvClass(config_path=config_path)
+            env = EnvClass(config_path=config_path, obs_type=obs_type if env_type == 'grid' else 'absolute')
         
-        # Wrap with recorder if enabled (only for first env to avoid duplicates)
         if enable_recording and rank == 0:
             env = RecorderClass(
                 env,
@@ -119,14 +118,13 @@ def make_env(env_type, config_path, enable_recording=False, recording_dir="repla
                 filename_prefix=f"{env_type}_training"
             )
         
-        # SB3 Contrib requires ActionMasker wrapper
         env = ActionMasker(env, lambda env: env.action_masks())
         return env
     
     return _init
 
 
-def train(env_type='graph', record=False, record_dir="replays", timesteps=500_000, n_envs=4, tmx_map=None):
+def train(env_type='graph', record=False, record_dir="replays", timesteps=500_000, n_envs=4, tmx_map=None, obs_type="absolute", map_pool=None, learning_rate=3e-4, batch_size=64, ent_coef=0.01):
     """
     Main training function.
     
@@ -137,6 +135,11 @@ def train(env_type='graph', record=False, record_dir="replays", timesteps=500_00
         timesteps: Total training timesteps
         n_envs: Number of parallel environments
         tmx_map: Optional TMX map name for grid environment
+        obs_type: Observation type
+        map_pool: List of maps for multi-map training
+        learning_rate: Learning rate
+        batch_size: Batch size
+        ent_coef: Entropy coefficient
     """
     print("=" * 70)
     print(f"Training Kitchen RL Agent - Environment: {env_type.upper()}")
@@ -158,36 +161,51 @@ def train(env_type='graph', record=False, record_dir="replays", timesteps=500_00
         print(f"  - Record Dir: {record_dir}")
     print()
     
-    # Setup Vectorized Environment
     print("Creating environments...")
-    env_fns = [make_env(env_type, config_path, record, record_dir, rank=i, tmx_map=tmx_map) for i in range(n_envs)]
-    env = DummyVecEnv(env_fns)
+    
+    if map_pool and len(map_pool) > 1:
+        from kitchen_rl.env.wrappers.multi_map import MultiMapWrapper
+        env_fns = [make_env(env_type, config_path, record, record_dir, rank=i, tmx_map=tmx_map, obs_type=obs_type) for i in range(n_envs)]
+        base_env = DummyVecEnv(env_fns)
+        env = MultiMapWrapper(base_env, map_pool, env_class=EnvClass)
+    else:
+        env_fns = [make_env(env_type, config_path, record, record_dir, rank=i, tmx_map=tmx_map, obs_type=obs_type) for i in range(n_envs)]
+        env = DummyVecEnv(env_fns)
     
     print(f"Observation Space: {env.observation_space}")
     print(f"Action Space: {env.action_space}")
     print("Action Masking: ENABLED")
     print()
     
-    # Define policy_kwargs for the grid environment
     policy_kwargs = {}
     if env_type == 'grid':
-        policy_kwargs = {
-            "features_extractor_class": CustomCnnExtractor,
-            "features_extractor_kwargs": dict(features_dim=128),
-        }
-        print("Using custom CNN feature extractor for grid environment.")
+        if obs_type == "relative":
+            from kitchen_rl.models.relative_cnn import DualStreamCNN
+            policy_kwargs = {
+                "features_extractor_class": DualStreamCNN,
+                "features_extractor_kwargs": dict(features_dim=256),
+            }
+            policy_type = "MultiInputPolicy"
+            print("Using Dual-Stream CNN for relative observations.")
+        else:
+            policy_kwargs = {
+                "features_extractor_class": CustomCnnExtractor,
+                "features_extractor_kwargs": dict(features_dim=128),
+            }
+            print("Using custom CNN feature extractor for grid environment.")
 
     # Create Model with environment-appropriate policy
     print(f"Creating model with {policy_type} policy...")
+    print(f"Hyperparameters: lr={learning_rate}, batch={batch_size}, ent_coef={ent_coef}, n_envs={n_envs}")
     model = MaskablePPO(
         policy_type,
         env,
         verbose=1,
-        learning_rate=3e-4,
+        learning_rate=learning_rate,
+        batch_size=batch_size,
+        ent_coef=ent_coef,
         n_steps=2048,
-        batch_size=64,
         gamma=0.99,
-        ent_coef=0.01,  # Encourage exploration
         tensorboard_log=f"./logs/ppo_kitchen_{env_type}/",
         policy_kwargs=policy_kwargs
     )
@@ -273,6 +291,43 @@ Examples:
         help='TMX map name to use (e.g., map_1, map_2) for grid environment'
     )
     
+    parser.add_argument(
+        '--obs-type',
+        type=str,
+        default='absolute',
+        choices=['absolute', 'relative'],
+        help='Observation type: absolute (default) or relative (for generalization)'
+    )
+    
+    parser.add_argument(
+        '--map-pool',
+        nargs='+',
+        type=str,
+        default=None,
+        help='List of maps to train on (for multi-map training)'
+    )
+    
+    parser.add_argument(
+        '--learning-rate',
+        type=float,
+        default=3e-4,
+        help='Learning rate (default: 3e-4, use 1e-4 for relative encoding)'
+    )
+    
+    parser.add_argument(
+        '--batch-size',
+        type=int,
+        default=64,
+        help='Batch size (default: 64, use 128 for relative encoding)'
+    )
+    
+    parser.add_argument(
+        '--ent-coef',
+        type=float,
+        default=0.01,
+        help='Entropy coefficient (default: 0.01, use 0.02 for relative encoding)'
+    )
+    
     args = parser.parse_args()
     
     train(
@@ -281,7 +336,12 @@ Examples:
         record_dir=args.record_dir,
         timesteps=args.timesteps,
         n_envs=args.envs,
-        tmx_map=args.tmx_map
+        tmx_map=args.tmx_map,
+        obs_type=args.obs_type,
+        map_pool=args.map_pool,
+        learning_rate=args.learning_rate,
+        batch_size=args.batch_size,
+        ent_coef=args.ent_coef
     )
 
 

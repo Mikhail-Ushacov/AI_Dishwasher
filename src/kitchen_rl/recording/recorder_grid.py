@@ -257,7 +257,6 @@ class GridEpisodeRecorder:
             inventory=inventory,
             stations=stations,
             orders=orders,
-            # CRITICAL FIX: Get completed_orders directly from the world state
             completed_orders=world.completed_orders 
         )
         
