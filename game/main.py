@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import filedialog
 from enum import Enum, auto
 from pathlib import Path
+from moduls.human import HumanHandler
 
 from settings import *
 from level import LevelManager
@@ -37,6 +38,7 @@ class GameApp:
         self.player = Player()
         self.ui_manager = UIManager()
         self.kitchen_manager = KitchenManager(ui_manager=self.ui_manager)
+        self.human_handler = HumanHandler()
         self.renderer = GameRenderer(self.screen)
         
         # State
@@ -101,25 +103,35 @@ class GameApp:
                 if result == "load_replay":
                     self._load_replay()
     
-    def _handle_manual_events(self, event):
-        """Handle events in manual game mode."""
-        if event.type == pygame.KEYDOWN:
-            if pygame.time.get_ticks() < self.player.freeze_until:
-                return
+    # def _handle_manual_events(self, event):
+    #     """Handle events in manual game mode."""
+    #     if event.type == pygame.KEYDOWN:
+    #         if pygame.time.get_ticks() < self.player.freeze_until:
+    #             return
             
-            dx, dy = 0, 0
-            if event.key == pygame.K_w: dy = -1
-            elif event.key == pygame.K_s: dy = 1
-            elif event.key == pygame.K_a: dx = -1
-            elif event.key == pygame.K_d: dx = 1
+    #         dx, dy = 0, 0
+    #         if event.key == pygame.K_w: dy = -1
+    #         elif event.key == pygame.K_s: dy = 1
+    #         elif event.key == pygame.K_a: dx = -1
+    #         elif event.key == pygame.K_d: dx = 1
             
-            if dx != 0 or dy != 0:
-                self.player.move(dx, dy, self.level_manager)
+    #         if dx != 0 or dy != 0:
+    #             self.player.move(dx, dy, self.level_manager)
             
-            if event.key in [pygame.K_e, pygame.K_f]:
-                self.kitchen_manager.handle_interaction(self.player, self.level_manager, 
-                                                       event.key, self.ui_manager)
+    #         if event.key in [pygame.K_e, pygame.K_f]:
+    #             self.kitchen_manager.handle_interaction(self.player, self.level_manager, 
+    #                                                    event.key, self.ui_manager)
     
+    def _handle_manual_events(self, event):
+        """Передаем событие в human.py."""
+        self.human_handler.handle_input(
+            event, 
+            self.player, 
+            self.level_manager, 
+            self.kitchen_manager, 
+            self.ui_manager
+        )
+
     def _handle_replay_events(self, event):
         """Handle events in replay viewer mode."""
         if self.replay_controller is None:
@@ -177,7 +189,7 @@ class GameApp:
         self.screen.fill(BLACK)
         
         # Draw map background
-        self.level_manager.draw(self.screen)
+        self.level_manager.draw(self.screen, self.kitchen_manager)
         
         # Get visual state based on current mode
         if self.app_state == AppState.MANUAL_GAME:
@@ -196,6 +208,7 @@ class GameApp:
         # Draw UI based on mode
         if self.app_state == AppState.MANUAL_GAME:
             self._render_manual_ui()
+            self.ui_manager.draw_proximity_prompts(self.screen, self.player, self.level_manager)
         elif self.app_state == AppState.REPLAY_VIEWER:
             self._render_replay_ui()
     
