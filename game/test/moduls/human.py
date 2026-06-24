@@ -14,7 +14,9 @@ class HumanHandler:
         }
 
     def handle_input(self, event, player, level_manager, kitchen_manager, ui_manager):
-        if pygame.time.get_ticks() < player.freeze_until:
+        now = pygame.time.get_ticks()
+
+        if now < player.freeze_until:
             return
 
         if event.type == pygame.KEYDOWN:
@@ -28,5 +30,6 @@ class HumanHandler:
                     player, 
                     level_manager, 
                     action_type, 
-                    ui_manager
+                    ui_manager,
+                    now
                 )

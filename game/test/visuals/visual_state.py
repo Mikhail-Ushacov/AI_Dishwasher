@@ -41,6 +41,7 @@ class VisualWorldState:
     orders: List[VisualOrder]
     score: int
     completed_orders: int
+    active_tool: Optional[str] = None
 
     @staticmethod
     def from_manual_game(player, kitchen_manager, level_manager):
@@ -69,5 +70,6 @@ class VisualWorldState:
             stations=stations,
             orders=[VisualOrder(0, kitchen_manager.get_order_name(), 100, 100)],
             score=kitchen_manager.score,
-            completed_orders=0
+            completed_orders=0,
+            active_tool=kitchen_manager.active_tool_visual
         )

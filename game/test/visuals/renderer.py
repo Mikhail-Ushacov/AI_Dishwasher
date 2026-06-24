@@ -1,36 +1,62 @@
-"""Pure rendering logic - draws VisualWorldState to screen."""
-
 import pygame
-from typing import Optional
-from visuals.visual_state import VisualWorldState, VisualAgent, VisualStation, VisualOrder
+import pytmx
 from visuals.asset_manager import AssetManager
 from settings import TILE_SIZE
-
+from visuals.visual_state import VisualAgent, VisualStation, VisualWorldState
 
 class GameRenderer:
-    """Renders the game world from VisualWorldState."""
-    
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
         self.asset_manager = AssetManager()
         self.font = pygame.font.SysFont(None, 24)
         self.small_font = pygame.font.SysFont(None, 18)
-    
-    def render(self, state: VisualWorldState, level_manager=None):
-        """Render the current visual state."""
-        # Draw level/map if provided
-        if level_manager:
-            level_manager.draw(self.screen)
+        # Кэш для загруженных визуальных данных карты
+        self.map_images = {} 
+
+    def render(self, state, level_manager):
+        # 1. Рисуем карту
+        self._draw_map(level_manager, state.active_tool)
         
-        # Draw stations
+        # 2. Станции
         for station in state.stations:
-            self._draw_station(station, level_manager.tile_size if level_manager else TILE_SIZE)
+            self._draw_station(station, level_manager.tile_size)
         
-        # Draw agent
-        self._draw_agent(state.agent, level_manager.tile_size if level_manager else TILE_SIZE)
+        # 3. Агент
+        self._draw_agent(state.agent, level_manager.tile_size)
         
-        # Draw UI
+        # 4. UI
         self._draw_ui(state)
+
+    def _draw_map(self, level_manager, active_tool): 
+        if not level_manager.tmx_data: return
+        
+        tmx = level_manager.tmx_data
+        ts = level_manager.tile_size
+
+        # 1. Draw background layers
+        for layer in tmx.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer) and layer.name != "active tiles":
+                for x, y, gid in layer:
+                    tile = tmx.get_tile_image_by_gid(gid)
+                    if tile:
+                        self.screen.blit(tile, (x * ts, y * ts))
+        
+        # 2. Draw active tool highlights
+        if active_tool:
+            tool_obj = next((o for o in level_manager.interactive_objects if o["name"] == active_tool), None)
+            if tool_obj:
+                r = tool_obj["rect"]
+                active_layer = next((l for l in tmx.visible_layers if l.name == "active tiles"), None)
+                if active_layer:
+                    tx_s, ty_s = int(r.x // ts), int(r.y // ts)
+                    tx_e, ty_e = int((r.right-1) // ts), int((r.bottom-1) // ts)
+                    
+                    for x in range(tx_s, tx_e + 1):
+                        for y in range(ty_s, ty_e + 1):
+                            gid = active_layer.data[y][x]
+                            tile = tmx.get_tile_image_by_gid(gid)
+                            if tile: # 'tile' is now a Surface because of load_pygame
+                                self.screen.blit(tile, (x * ts, y * ts))
     
     def _draw_station(self, station: VisualStation, tile_size: int):
         """Draw a station."""

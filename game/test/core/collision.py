@@ -1,14 +1,14 @@
-import pygame
+from core.geometry import Rect
 
 class CollisionManager:
     def __init__(self, tile_size, collision_rects, interactive_objects):
         self.tile_size = tile_size
-        self.collision_rects = collision_rects # Список Rect
+        self.collision_rects = collision_rects # Список наших Rect
         self.interactive_objects = interactive_objects # Список dict с Rect
 
     def can_move(self, cell_x, cell_y):
-        test_rect = pygame.Rect(cell_x * self.tile_size, cell_y * self.tile_size, 
-                                self.tile_size, self.tile_size)
+        test_rect = Rect(cell_x * self.tile_size, cell_y * self.tile_size, 
+                        self.tile_size, self.tile_size)
         return not any(test_rect.colliderect(r) for r in self.collision_rects)
 
     def get_object_at_facing(self, player):

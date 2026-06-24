@@ -188,7 +188,7 @@ class GameApp:
         self.screen.fill(BLACK)
         
         # Draw map background
-        self.level_manager.draw(self.screen, self.kitchen_manager)
+        # self.level_manager.draw(self.screen, self.kitchen_manager)
         
         # Get visual state based on current mode
         if self.app_state == AppState.MANUAL_GAME:
