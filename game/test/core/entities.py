@@ -3,7 +3,7 @@ class Item:
         self.name = name
         self.display_name = display_name
         self.image_key = image_key
-        self.state = state  # raw, washed, cut, fried, baked
+        self.state = state 
 
 class Player:
     def __init__(self):
@@ -18,7 +18,6 @@ class Player:
         self.cell_y = y
 
     def move(self, dx, dy, level_manager):
-        # Обновляем направление
         if dx > 0: self.facing = "right"
         elif dx < 0: self.facing = "left"
         elif dy > 0: self.facing = "down"
@@ -27,7 +26,6 @@ class Player:
         new_x = self.cell_x + dx
         new_y = self.cell_y + dy
         
-        # Проверка коллизии через физический движок уровня
         if level_manager.can_move(new_x, new_y):
             self.cell_x = new_x
             self.cell_y = new_y

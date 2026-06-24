@@ -1,58 +1,73 @@
+from dataclasses import dataclass
+from typing import List, Optional
 import pygame
 
+@dataclass
 class VisualItem:
-    def __init__(self, image_key):
-        self.image_key = image_key
+    type_id: int
+    image_key: str
+    state: str = "raw"
 
+@dataclass
 class VisualAgent:
-    def __init__(self, x, y, facing, held_item=None):
-        self.grid_x = x
-        self.grid_y = y
-        self.facing = facing
-        self.held_item = held_item
+    grid_x: float
+    grid_y: float
+    facing: str
+    held_item: Optional[VisualItem] = None
 
+@dataclass
 class VisualStation:
-    def __init__(self, grid_x, grid_y, station_type, held_item=None, is_busy=False):
-        self.grid_x = grid_x
-        self.grid_y = grid_y
-        self.station_type = station_type
-        self.held_item = held_item
-        self.is_busy = is_busy
+    node_id: int
+    name: str
+    station_type: str
+    grid_x: int
+    grid_y: int
+    held_item: Optional[VisualItem] = None
+    is_busy: bool = False
+    timer: int = 0
 
+@dataclass
 class VisualOrder:
-    def __init__(self, item_name, time_remaining, max_time):
-        self.item_name = item_name
-        self.time_remaining = time_remaining
-        self.max_time = max_time
+    order_id: int
+    item_name: str
+    time_remaining: int
+    max_time: int
 
+@dataclass
 class VisualWorldState:
-    def __init__(self, agent, stations, orders, score, tick):
-        self.agent = agent
-        self.stations = stations
-        self.orders = orders
-        self.score = score
-        self.tick = tick
+    tick: int
+    agent: VisualAgent
+    stations: List[VisualStation]
+    orders: List[VisualOrder]
+    score: int
+    completed_orders: int
 
     @staticmethod
     def from_manual_game(player, kitchen_manager, level_manager):
         held = None
         if player.held_item:
-            held = VisualItem(player.held_item.image_key)
+            held = VisualItem(0, player.held_item.image_key, player.held_item.state)
             
-        agent = VisualAgent(player.cell_x, player.cell_y, player.facing, held)
+        agent = VisualAgent(float(player.cell_x), float(player.cell_y), player.facing, held)
         
-        # Create a list of visual stations from the interactive objects in the level
         stations = []
         for obj in level_manager.interactive_objects:
-            # Simple conversion of rect to grid coordinates
-            gx = obj["rect"].x // level_manager.tile_size
-            gy = obj["rect"].y // level_manager.tile_size
-            stations.append(VisualStation(gx, gy, obj["name"]))
+            name = obj["name"]
+            gx, gy = obj["rect"].x // level_manager.tile_size, obj["rect"].y // level_manager.tile_size
+            
+            # Определение типа для раскраски в renderer.py
+            s_type = "table"
+            if name == "fridge": s_type = "source"
+            elif name in ["oven", "gas-stove", "sink"]: s_type = "process"
+            elif name == "order": s_type = "delivery"
+            
+            stations.append(VisualStation(0, name, s_type, gx, gy))
 
         return VisualWorldState(
+            tick=pygame.time.get_ticks() // 16,
             agent=agent,
             stations=stations,
-            orders=[VisualOrder(kitchen_manager.current_order, 1, 1)] if kitchen_manager.current_order else [],
+            orders=[VisualOrder(0, kitchen_manager.get_order_name(), 100, 100)],
             score=kitchen_manager.score,
-            tick=pygame.time.get_ticks() // 16
+            completed_orders=0
         )
