@@ -9,5 +9,7 @@ dist/
 
 logs/
 /models
+game/test/agent/models/*.zip
+game/test/agent/logs/
 /replays
 .scripts/

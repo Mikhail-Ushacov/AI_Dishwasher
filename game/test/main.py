@@ -14,6 +14,7 @@ from visuals.ui_overlay import UIManager
 from visuals.renderer import GameRenderer
 from visuals.visual_state import VisualWorldState # NEW
 from moduls.human import HumanHandler
+from agent.evaluate import AgentPlayer
 
 
 class AppState(Enum):
@@ -21,6 +22,7 @@ class AppState(Enum):
     MENU = auto()
     MANUAL_GAME = auto()
     REPLAY_VIEWER = auto()
+    AI_GAME = auto()
 
 
 class GameApp:
@@ -44,13 +46,19 @@ class GameApp:
         self.app_state = AppState.MANUAL_GAME
         self.replay_controller = None
         self.current_map = None
+        self.agent_player = None
         
         # Load initial map
         self._load_initial_map()
     
     def _load_initial_map(self):
-        """Load the first available map."""
+        """Load map_1.tmx."""
         maps = self.level_manager.get_available_maps()
+        for m in ["map1.tmx", "map_1.tmx"]:
+            if m in maps:
+                self.current_map = m
+                self.level_manager.load_map(self.current_map, self.player)
+                return
         if maps:
             self.current_map = maps[0]
             self.level_manager.load_map(self.current_map, self.player)
@@ -88,12 +96,17 @@ class GameApp:
                 if event.key == pygame.K_F5:
                     self._load_replay()
                     continue
+                if event.key == pygame.K_F6:
+                    self._toggle_ai()
+                    continue
             
             # State-specific event handling
             if self.app_state == AppState.MANUAL_GAME:
                 self._handle_manual_events(event)
             elif self.app_state == AppState.REPLAY_VIEWER:
                 self._handle_replay_events(event)
+            elif self.app_state == AppState.AI_GAME:
+                self._handle_ai_events(event)
             
             # UI events (always handle)
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -123,13 +136,14 @@ class GameApp:
     
     def _handle_manual_events(self, event):
         """Передаем событие в human.py."""
-        self.human_handler.handle_input(
-            event, 
-            self.player, 
-            self.level_manager, 
-            self.kitchen_manager, 
-            self.ui_manager
+        result = self.human_handler.handle_input(
+            event,
+            self.player,
+            self.level_manager,
+            self.kitchen_manager,
         )
+        if result:
+            self._process_interaction_result(result)
 
     def _handle_replay_events(self, event):
         """Handle events in replay viewer mode."""
@@ -182,6 +196,8 @@ class GameApp:
         """Update game state."""
         if self.app_state == AppState.REPLAY_VIEWER and self.replay_controller:
             self.replay_controller.update(dt)
+        elif self.app_state == AppState.AI_GAME:
+            self._update_ai()
     
     def _render(self):
         """Render current frame."""
@@ -191,7 +207,7 @@ class GameApp:
         # self.level_manager.draw(self.screen, self.kitchen_manager)
         
         # Get visual state based on current mode
-        if self.app_state == AppState.MANUAL_GAME:
+        if self.app_state in (AppState.MANUAL_GAME, AppState.AI_GAME):
             visual_state = VisualWorldState.from_manual_game(
                 self.player, self.kitchen_manager, self.level_manager
             )
@@ -205,9 +221,10 @@ class GameApp:
             self.renderer.render(visual_state, self.level_manager)
         
         # Draw UI based on mode
-        if self.app_state == AppState.MANUAL_GAME:
+        if self.app_state in (AppState.MANUAL_GAME, AppState.AI_GAME):
             self._render_manual_ui()
-            self.ui_manager.draw_proximity_prompts(self.screen, self.player, self.level_manager)
+            if self.app_state == AppState.MANUAL_GAME:
+                self.ui_manager.draw_proximity_prompts(self.screen, self.player, self.level_manager)
         elif self.app_state == AppState.REPLAY_VIEWER:
             self._render_replay_ui()
     
@@ -243,6 +260,70 @@ class GameApp:
             self.screen, progress, current_tick, total_ticks, is_playing, speed
         )
     
+    def _process_interaction_result(self, result):
+        """Apply UI updates from an InteractionResult."""
+        if result.popup_text:
+            rect = pygame.Rect(
+                result.popup_pos[0] * self.level_manager.tile_size if result.popup_pos else WIDTH // 2,
+                result.popup_pos[1] * self.level_manager.tile_size if result.popup_pos else HEIGHT // 2,
+                100, 50
+            )
+            self.ui_manager.show_popup(result.popup_text, rect, result.popup_duration)
+        if result.score_delta:
+            self.ui_manager.score_stack.add(result.score_delta, pygame.time.get_ticks())
+
+    def _toggle_ai(self):
+        """Toggle AI game mode."""
+        if self.app_state == AppState.AI_GAME:
+            self.app_state = AppState.MANUAL_GAME
+            self.agent_player = None
+            return
+        self.app_state = AppState.AI_GAME
+        model_path = "agent/models/ppo_auto_v2"
+        self.agent_player = AgentPlayer(model_path=model_path, map_name=self.current_map, auto_interact=True)
+        print(f"AI mode enabled (model: {model_path}, F6 to toggle)")
+
+    def _handle_ai_events(self, event):
+        """Handle events in AI game mode."""
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                self._reset_game()
+            elif event.key == pygame.K_ESCAPE:
+                self._toggle_ai()
+
+    def _reset_game(self):
+        """Reset the game state for a new episode."""
+        self.player = Player()
+        self.kitchen_manager = KitchenManager()
+        self.level_manager.load_map(self.current_map, self.player)
+
+    def _update_ai(self):
+        """Run the AI agent for one step."""
+        if self.agent_player is None:
+            return
+        if pygame.time.get_ticks() < self.player.freeze_until:
+            return
+        action = self.agent_player.act(self.player, self.kitchen_manager, self.level_manager)
+        self._execute_ai_action(action)
+
+    def _execute_ai_action(self, action):
+        from agent.env import (
+            ACTION_UP, ACTION_DOWN, ACTION_LEFT, ACTION_RIGHT,
+            ACTION_INTERACT, ACTION_INTERACT_SEC, ACTION_WAIT,
+        )
+        if action == ACTION_WAIT:
+            return
+        if action < 4:
+            dx, dy = [(0, -1), (0, 1), (-1, 0), (1, 0)][action]
+            self.player.move(dx, dy, self.level_manager)
+        elif action in (ACTION_INTERACT, ACTION_INTERACT_SEC):
+            action_type = "primary" if action == ACTION_INTERACT else "secondary"
+            result = self.kitchen_manager.handle_interaction(
+                self.player, self.level_manager, action_type, pygame.time.get_ticks()
+            )
+            if result:
+                self._process_interaction_result(result)
+
     def _load_replay(self):
         """Load a replay file via file dialog."""
         # Create hidden tkinter root for file dialog

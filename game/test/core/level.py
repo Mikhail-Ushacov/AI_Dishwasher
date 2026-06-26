@@ -21,14 +21,16 @@ class LevelManager:
             return []
         return [f for f in os.listdir(maps_dir) if f.endswith(".tmx")]
 
-    def load_map(self, map_name, player):
+    def load_map(self, map_name, player, headless=False):
         """Загружает карту, настраивает коллизии и спавнит игрока."""
         self.map_name = map_name.replace(".tmx", "")
         tmx_path = os.path.join(BASE_DIR, "maps", map_name)
         
         try:
-            # Используем load_pygame, чтобы загрузить и данные, и поверхности
-            self.tmx_data = load_pygame(tmx_path)
+            if headless:
+                self.tmx_data = pytmx.TiledMap(tmx_path)
+            else:
+                self.tmx_data = load_pygame(tmx_path)
             self.tile_size = self.tmx_data.tilewidth
             self.width_in_tiles = self.tmx_data.width
             self.height_in_tiles = self.tmx_data.height
