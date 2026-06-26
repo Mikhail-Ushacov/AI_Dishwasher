@@ -1,0 +1,36 @@
+# Core Logic Architecture Rules (AI INSTRUCTIONS)
+
+This folder contains the "Brain" of the game. It must be completely decoupled from any rendering engines (Pygame).
+
+## 1. Strict Dependency Rule
+- **NO PYGAME:** Do not import `pygame` anywhere in `core/`.
+- **NO VISUALS:** Do not import from `visuals/` or any other UI-related folders. 
+- **PURITY:** The logic must be able to run in a headless console environment (for AI training or server-side simulation).
+
+## 2. Geometry & Physics
+- Use ONLY `core.geometry.Rect`. Never use `pygame.Rect`.
+- All collision checks and position calculations must rely on `core/geometry.py`.
+- Coordinates are stored as floats or ints; images are represented by string keys (e.g., "potato_raw").
+
+## 3. Data Loading
+- **Level Loading:** Use `pytmx.TiledMap(path)` for data only. 
+- **DO NOT USE** `load_pygame` from `pytmx.util_pygame` inside `core/`. It attempts to load textures into video memory, which is forbidden here.
+
+## 4. Communication with UI/Visuals
+- `core/` classes must not know about `ui_manager` or `renderer`.
+- Use **Events** or **Return Values**:
+    - Mechanics should return status/event objects (e.g., `{"event": "score_up", "value": 10}`).
+    - Or use simple callbacks/interfaces.
+- **BAD:** `mechanics.handle_interaction(..., ui_manager)`
+- **GOOD:** `events = mechanics.handle_interaction(...)` -> then main script passes events to UI.
+
+## 5. Time & Input
+- **Time:** Pass time as an integer (milliseconds) or float (seconds). Do not use `pygame.time`.
+- **Input:** Pass abstract actions (e.g., `action="primary"`, `direction="up"`) rather than `pygame.KEYDOWN` events.
+
+## 6. Current Violations (TO BE FIXED):
+- `core/level.py`: Uses `load_pygame`. Replace with pure data parser.
+- `core/replay.py`: Imports from `visuals.visual_state`. Move visual state definitions to a shared location or use dictionaries.
+- `core/mechanics.py`: Takes `ui_manager` as an argument.
+
+**Instruction for AI:** If you are asked to modify or add files in `core/`, ensure you never break these rules. If you see a violation, suggest a refactor.
