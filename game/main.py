@@ -216,7 +216,8 @@ class GameApp:
         """Render UI for manual game mode."""
         self.ui_manager.draw_ui(self.screen, self.player, self.kitchen_manager, self.level_manager)
         self.ui_manager.draw_popups(self.screen)
-        self.ui_manager.draw_timer(self.screen, self.player, self.level_manager.tile_size)
+        # Раньше передавали tile_size, теперь весь level_manager
+        self.ui_manager.draw_timer(self.screen, self.player, self.level_manager)
     
     def _render_replay_ui(self):
         """Render UI for replay viewer mode."""

@@ -180,12 +180,24 @@ class UIManager:
             r = txt.get_rect(centerx=self.active_popup["rect"].centerx, bottom=self.active_popup["rect"].top - 5)
             screen.blit(txt, r)
 
-    def draw_timer(self, screen, player, ts):
+    def draw_timer(self, screen, player, level_manager):
         if pygame.time.get_ticks() < player.freeze_until:
-            # Здесь тоже нужно учитывать масштаб
-            map_pixel_w = 20 * 16 # Для примера, лучше передавать сюда scale
-            scale = GAME_WIDTH / (20 * 16) # Упрощенно
+            # Вычисляем масштаб точно так же, как в renderer.py
+            map_pixel_w = level_manager.width_in_tiles * level_manager.tile_size
+            map_pixel_h = level_manager.height_in_tiles * level_manager.tile_size
             
+            if map_pixel_w == 0 or map_pixel_h == 0: return
+
+            scale = min(GAME_WIDTH / map_pixel_w, GAME_HEIGHT / map_pixel_h)
+            draw_ts = level_manager.tile_size * scale
+            offset_x = (GAME_WIDTH - (map_pixel_w * scale)) / 2
+            offset_y = (GAME_HEIGHT - (map_pixel_h * scale)) / 2
+
+            # Позиция игрока на экране
+            px = offset_x + player.cell_x * draw_ts
+            py = offset_y + player.cell_y * draw_ts
+
             left = (player.freeze_until - pygame.time.get_ticks()) / 1000
             t = self.header_font.render(f"{left:.1f}s", True, RED)
-            screen.blit(t, (player.cell_x * ts * scale, player.cell_y * ts * scale - 25))
+            # Рисуем по центру над игроком
+            screen.blit(t, (px + (draw_ts//2 - t.get_width()//2), py - 25))

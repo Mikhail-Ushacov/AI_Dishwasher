@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map_1.tmx",
+    "activeFile": "map1.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -52,11 +52,14 @@
             "scaleInEditor": 1
         },
         "map1.tmx": {
+            "expandedObjectLayers": [
+                4
+            ],
             "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 132.5,
-                "y": 152.99999999999997
+                "x": 122.5,
+                "y": 127.99999999999999
             }
         },
         "map1.tmx#cabinets_LRK": {
@@ -75,11 +78,11 @@
             "expandedObjectLayers": [
                 4
             ],
-            "scale": 1.5,
+            "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 218.3333333333333,
-                "y": 246.66666666666663
+                "x": 155.75,
+                "y": 159
             }
         },
         "map_1.tmj#cabinets_LRK": {
@@ -107,8 +110,8 @@
             "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 256,
-                "y": 255.83333333333331
+                "x": 104.16666666666667,
+                "y": 126.99999999999999
             }
         },
         "map_1.tmx#cabinets_LRK": {
@@ -136,14 +139,11 @@
             "scaleInEditor": 1
         },
         "map_2.tmx": {
-            "expandedObjectLayers": [
-                2
-            ],
-            "scale": 1.5,
+            "scale": 8,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 223.66666666666669,
-                "y": 77.33333333333331
+                "x": 413.5625,
+                "y": 156.625
             }
         },
         "map_2.tmx#Sprite-0002": {
@@ -174,11 +174,11 @@
             "expandedObjectLayers": [
                 3
             ],
-            "scale": 4,
+            "scale": 5.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 68.875,
-                "y": 48.75
+                "x": 23.18181818181818,
+                "y": 53.272727272727266
             }
         },
         "map_3.tmx#Sprite-0002": {
@@ -195,13 +195,15 @@
     "openFiles": [
         "map_1.tmx",
         "map_2.tmx",
-        "map_3.tmx"
+        "map_3.tmx",
+        "map1.tmx"
     ],
     "project": "1..tiled-project",
     "recentFiles": [
-        "map_3.tmx",
-        "map_2.tmx",
         "map_1.tmx",
+        "map_2.tmx",
+        "map_3.tmx",
+        "map1.tmx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/floorswalls_LRK.tsx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/cabinets_LRK.tsx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/livingroom_LRK.tsx",

@@ -49,13 +49,12 @@ class AssetManager:
     
     def _load_player_sprite(self):
         """Load or create player sprite."""
-        # Create a simple player sprite programmatically
         size = 32
         self.player_sprite = pygame.Surface((size, size), pygame.SRCALPHA)
-        # Body (blue)
-        pygame.draw.rect(self.player_sprite, (100, 150, 255), (4, 4, size-8, size-8))
-        # Border
-        pygame.draw.rect(self.player_sprite, (50, 100, 200), (4, 4, size-8, size-8), 2)
+        # Тело теперь занимает весь размер 32x32
+        pygame.draw.rect(self.player_sprite, (100, 150, 255), (0, 0, size, size))
+        # Рамка по краям
+        pygame.draw.rect(self.player_sprite, (50, 100, 200), (0, 0, size, size), 2)
     
     def get_item_image(self, image_key: str) -> pygame.Surface:
         """Get an item image by key."""
