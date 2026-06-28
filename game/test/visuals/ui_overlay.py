@@ -85,9 +85,17 @@ class UIManager:
         # 6. Инвентарь
         inventory_y = score_y + max(40, self.score_stack.get_height() + 10)
         held = player.held_item
-        color = YELLOW if held else WHITE
-        inventory_text = f"В руках: {held.display_name if held else 'Пусто'}"
-        screen.blit(self.font.render(inventory_text, True, color), (GAME_WIDTH + 20, inventory_y))
+        # Рисуем первую строку (заголовок)
+        label_img = self.font.render("В руках:", True, WHITE)
+        screen.blit(label_img, (GAME_WIDTH + 20, inventory_y))
+        
+        # Рисуем вторую строку (название предмета)
+        item_text = held.display_name if held else "Пусто"
+        item_color = YELLOW if held else LIGHT_GRAY
+        item_img = self.font.render(item_text, True, item_color)
+        
+        # Смещаем вторую строку вниз на 22-25 пикселей
+        screen.blit(item_img, (GAME_WIDTH + 20, inventory_y + 25))
 
         # 7. Кнопки внизу
         pygame.draw.rect(screen, (80, 120, 80), self.reload_button)
