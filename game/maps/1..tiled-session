@@ -56,7 +56,7 @@
                 4
             ],
             "scale": 3,
-            "selectedLayer": 3,
+            "selectedLayer": 2,
             "viewCenter": {
                 "x": 122.5,
                 "y": 127.99999999999999
@@ -107,11 +107,11 @@
             "expandedObjectLayers": [
                 4
             ],
-            "scale": 3,
+            "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 104.16666666666667,
-                "y": 126.99999999999999
+                "x": 171.75,
+                "y": 159
             }
         },
         "map_1.tmx#cabinets_LRK": {
@@ -139,11 +139,11 @@
             "scaleInEditor": 1
         },
         "map_2.tmx": {
-            "scale": 8,
+            "scale": 1.5,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 413.5625,
-                "y": 156.625
+                "x": 230.3333333333333,
+                "y": 209.33333333333337
             }
         },
         "map_2.tmx#Sprite-0002": {

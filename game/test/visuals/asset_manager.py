@@ -28,24 +28,37 @@ class AssetManager:
     
     def _load_item_images(self):
         """Load item images."""
-        item_configs = [
-            ("potato", "Potato.png"),
-            ("potato_red", "PotatoRed.png"),
-            ("chips", "78_potatochips_bowl.png"),
-            ("potato_cooked", "Potato.png"),  # Placeholder
-            ("potato_chips", "78_potatochips_bowl.png"),
-        ]
+        item_configs = {
+            "potato": "Potato.png",
+            "potato_red": "PotatoRed.png",
+            "chips": "78_potatochips_bowl.png",
+            "fruit_apple": "fruit_apple.png",
+            "apple_cut": "Apple_piece_01_Outline_BigWander_TheBanquet.png",
+            "apple_pie": "06_apple_pie_dish.png",
+            "meat_raw": "BoarMeat_Raw_Individual_Outline_BigWander_TheBanquet.png",
+            "meat_cut": "BoarMeat_Raw_Half_Left_Outline_BigWander_TheBanquet.png",
+            "steak_done": "96_steak_dish.png",
+            "tomato": "vegetable_tomato.png",
+            "tomato_cut": "Tomatoe_half_bottom.png",
+            "soup": "canned_soup.png",
+            "sushi": "98_sushi_dish.png",
+        }
         
-        for key, filename in item_configs:
-            path = os.path.join(ASSETS_DIR, filename)
+        # Подпапка внутри ASSETS_DIR
+        food_dir = os.path.join(ASSETS_DIR, "food")
+        
+        for key, filename in item_configs.items():
+            path = os.path.join(food_dir, filename)
             if os.path.exists(path):
                 img = pygame.image.load(path).convert_alpha()
-                img = pygame.transform.scale(img, (20, 20))
+                img = pygame.transform.scale(img, (24, 24)) # Размер 24x24 для наглядности
+                self.item_images[key] = img
             else:
-                # Fallback colored square
-                img = pygame.Surface((20, 20))
-                img.fill((139, 69, 19) if "potato" in key else (255, 215, 0))
-            self.item_images[key] = img
+                print(f"Warning: Asset not found at {path}")
+                # Резервный квадрат, если файл потерян
+                fallback = pygame.Surface((24, 24))
+                fallback.fill((255, 0, 255)) # Розовый - цвет ошибки
+                self.item_images[key] = fallback
     
     def _load_player_sprite(self):
         """Load or create player sprite."""
