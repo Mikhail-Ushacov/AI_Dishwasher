@@ -359,6 +359,7 @@ class GameApp:
         """Reset the game state for a new episode."""
         self.player = Player()
         self.kitchen_manager = KitchenManager()
+        self.kitchen_manager.table_manager.clear()
         self.level_manager.load_map(self.current_map, self.player)
 
     def _update_ai(self):

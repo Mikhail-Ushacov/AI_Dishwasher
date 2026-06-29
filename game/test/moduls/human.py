@@ -13,7 +13,8 @@ class HumanHandler:
         }
         self.action_keys = {
             pygame.K_e: "primary",
-            pygame.K_f: "secondary"
+            pygame.K_f: "secondary",
+            pygame.K_q: "put"
         }
 
     def handle_input(self, event, player, level_manager, kitchen_manager) -> Optional[InteractionResult]:

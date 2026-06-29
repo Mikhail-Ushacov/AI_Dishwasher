@@ -85,9 +85,15 @@ class GameRenderer:
         if station.held_item:
             img = self.asset_manager.get_item_image(station.held_item.image_key)
             if img:
+                # Масштабируем предмет, чтобы он был чуть меньше тайла
                 item_size = int(draw_ts * 0.7)
                 scaled_img = pygame.transform.scale(img, (item_size, item_size))
-                self.screen.blit(scaled_img, (px + (draw_ts - item_size)//2, py + (draw_ts - item_size)//2))
+                
+                # Центрируем и чуть приподнимаем (на 2 пикселя вверх для объема)
+                dest_x = px + (draw_ts - item_size) // 2
+                dest_y = py + (draw_ts - item_size) // 2 - 2 
+                
+                self.screen.blit(scaled_img, (dest_x, dest_y))
 
     def _draw_agent(self, agent: VisualAgent, draw_ts, off_x, off_y):
         px = int(off_x + agent.grid_x * draw_ts)

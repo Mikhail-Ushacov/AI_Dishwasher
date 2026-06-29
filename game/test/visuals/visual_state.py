@@ -54,15 +54,22 @@ class VisualWorldState:
         stations = []
         for obj in level_manager.interactive_objects:
             name = obj["name"]
-            gx, gy = obj["rect"].x // level_manager.tile_size, obj["rect"].y // level_manager.tile_size
+            gx, gy = int(obj["rect"].x // level_manager.tile_size), int(obj["rect"].y // level_manager.tile_size)
             
             # Определение типа для раскраски в renderer.py
+            surface = kitchen_manager.table_manager.get_surface(gx, gy)
+            visual_item = None
+            if surface and surface.current_item:
+                item = surface.current_item
+                visual_item = VisualItem(0, item.image_key, item.state)
+
             s_type = "table"
             if name == "fridge": s_type = "source"
             elif name in ["oven", "gas-stove", "sink"]: s_type = "process"
             elif name == "order": s_type = "delivery"
             
-            stations.append(VisualStation(0, name, s_type, gx, gy))
+            # Передаем visual_item в VisualStation
+            stations.append(VisualStation(0, name, s_type, gx, gy, held_item=visual_item))
 
         return VisualWorldState(
             tick=pygame.time.get_ticks() // 16,

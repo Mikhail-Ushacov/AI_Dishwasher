@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 from core.entities import Item
 from core.recipes import get_recipe_result, FINAL_PRODUCTS, STARTING_INGREDIENTS
+from core.table import TableManager
 
 @dataclass
 class InteractionResult:
@@ -22,6 +23,7 @@ class KitchenManager:
         self.generate_new_order()
         self.active_tool_visual = None
         self.visual_expiry = 0
+        self.table_manager = TableManager()
 
     def generate_new_order(self):
         self.current_order = self.rng.choice(list(FINAL_PRODUCTS.keys()))
@@ -113,5 +115,26 @@ class KitchenManager:
                     popup_pos=(gx, gy),
                     freeze_duration=duration
                 )
+
+        # 4. ЛОГИКА РАБОЧЕЙ ПОВЕРХНОСТИ (Table, Table_custom, и т.д.)    
+        if name == "table" or name == "cooking_place":
+            surface = self.table_manager.get_surface(gx, gy)
+            if not surface:
+                surface = self.table_manager.register_surface(name, gx, gy)
+
+            # ЕСЛИ НАЖАЛИ Q (Положить)
+            if action_type == "put":
+                if held and surface.can_put(held):
+                    surface.put_item(held)
+                    player.held_item = None
+                    return InteractionResult(event="table_put")
+                else:
+                    return InteractionResult("nothing") # Нельзя положить, если рук пустые или стол занят
+
+            # ЕСЛИ НАЖАЛИ E (Взять)
+            if action_type == "primary":
+                if not held and surface.can_take(held):
+                    player.held_item = surface.take_item()
+                    return InteractionResult(event="table_take")
 
         return InteractionResult("nothing")
