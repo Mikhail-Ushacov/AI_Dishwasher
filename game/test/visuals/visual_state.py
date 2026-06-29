@@ -54,7 +54,8 @@ class VisualWorldState:
         stations = []
         for obj in level_manager.interactive_objects:
             name = obj["name"]
-            gx, gy = int(obj["rect"].x // level_manager.tile_size), int(obj["rect"].y // level_manager.tile_size)
+            gx = int((obj["rect"].x + obj["rect"].width / 2) // level_manager.tile_size)
+            gy = int((obj["rect"].y + obj["rect"].height / 2) // level_manager.tile_size)
             
             # Определение типа для раскраски в renderer.py
             surface = kitchen_manager.table_manager.get_surface(gx, gy)

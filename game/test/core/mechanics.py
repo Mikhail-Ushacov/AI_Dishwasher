@@ -13,7 +13,8 @@ class InteractionResult:
     popup_duration: int = 2000
     popup_pos: Optional[Tuple[int, int]] = None
     freeze_duration: int = 0
-
+    station_name: str = ""
+    tool_type: str = ""
 
 class KitchenManager:
     def __init__(self, seed=None):
@@ -55,17 +56,25 @@ class KitchenManager:
         if not target_obj:
             return InteractionResult("nothing")
 
-        name, rect, held = target_obj["name"], target_obj["rect"], player.held_item
-        gx, gy = int(rect.x // ts), int(rect.y // ts)
+        obj_name = target_obj.get("name", "")
+        obj_type = target_obj.get("type", "")
+        rect = target_obj["rect"]
+        held = player.held_item
+        gx = int((rect.x + rect.width / 2) // ts)
+        gy = int((rect.y + rect.height / 2) // ts)
 
         # 1. ХОЛОДИЛЬНИК
-        if name == "fridge" and action_type == "primary":
+        is_fridge = obj_type == "fridge" or obj_name.startswith("fridge")
+        if is_fridge and action_type == "primary":
             if not player.held_item:
-                # Возвращаем только сигнал к открытию меню, не меняя предмет игрока здесь!
-                return InteractionResult(event="open_fridge")
+                return InteractionResult(
+                    event="open_fridge", 
+                    station_name=obj_name, # Передаст fridge1 или fridge2
+                    tool_type="fridge"
+                )
 
         # 2. ВЫДАЧА
-        if name == "order" and action_type == "primary":
+        if (obj_type == "order" or obj_name == "order") and action_type == "primary":
             if held:
                 if held.state == self.current_order:
                     self.score += 10
@@ -81,10 +90,10 @@ class KitchenManager:
         if held and (action_type == "primary" or action_type == "secondary"):
             
             # Определяем реальный инструмент
-            actual_tool = name
+            actual_tool = obj_type if obj_type else obj_name
             
             # Если стоим у универсальной точки готовки:
-            if name == "cooking_place":
+            if actual_tool == "cooking_place":
                 if action_type == "primary":    # Клавиша E
                     actual_tool = "gas-stove"
                 elif action_type == "secondary": # Клавиша F
@@ -104,7 +113,7 @@ class KitchenManager:
                 held.image_key = recipe["image"]
                 
                 # Визуальный эффект работы инструмента
-                if actual_tool in ["gas-stove", "oven"]:
+                if actual_tool in ["gas-stove", "oven", "sink"]:
                     self.active_tool_visual = actual_tool
                     self.visual_expiry = current_time + duration
 
@@ -113,14 +122,16 @@ class KitchenManager:
                     popup_text=f"{recipe['name']}...",
                     popup_duration=duration,
                     popup_pos=(gx, gy),
-                    freeze_duration=duration
+                    freeze_duration=duration,
+                    station_name=obj_name,
+                    tool_type=actual_tool
                 )
 
         # 4. ЛОГИКА РАБОЧЕЙ ПОВЕРХНОСТИ (Table, Table_custom, и т.д.)    
-        if name == "table" or name == "cooking_place":
+        if "table" in obj_name or obj_type in ["table", "cooking_place"]:
             surface = self.table_manager.get_surface(gx, gy)
             if not surface:
-                surface = self.table_manager.register_surface(name, gx, gy)
+                surface = self.table_manager.register_surface(obj_name, gx, gy)
 
             # ЕСЛИ НАЖАЛИ Q (Положить)
             if action_type == "put":

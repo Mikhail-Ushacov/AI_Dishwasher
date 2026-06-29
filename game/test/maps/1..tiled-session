@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map_3.tmx",
+    "activeFile": "map1.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -55,27 +55,27 @@
             "scaleInDock": 1
         },
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/test/assets/pixelinterior_LRK/kitchen_LRK.tsx": {
-            "scaleInDock": 1
+            "scaleInDock": 1.5
         },
         "map1.tmx": {
             "expandedObjectLayers": [
                 4
             ],
             "scale": 4,
-            "selectedLayer": 2,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 112.5,
-                "y": 128
+                "x": 58.5,
+                "y": 112
             }
         },
         "map1.tmx#cabinets_LRK": {
-            "scaleInDock": 1
+            "scaleInDock": 0.75
         },
         "map1.tmx#floorswalls_LRK": {
             "scaleInDock": 1
         },
         "map1.tmx#kitchen_LRK": {
-            "scaleInDock": 1
+            "scaleInDock": 5.5
         },
         "map1.tmx#livingroom_LRK": {
             "scaleInDock": 0.75
@@ -145,11 +145,11 @@
             "scaleInEditor": 1
         },
         "map_2.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 4,
+            "scale": 2,
+            "selectedLayer": 18,
             "viewCenter": {
-                "x": 255.99999999999997,
-                "y": 255.99999999999997
+                "x": 253,
+                "y": 262.5
             }
         },
         "map_2.tmx#Sprite-0002": {
@@ -183,8 +183,8 @@
             "scale": 8,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 28.375,
-                "y": 41.75
+                "x": 47.75,
+                "y": 40
             }
         },
         "map_3.tmx#Sprite-0002": {
@@ -199,17 +199,16 @@
     "map.tileWidth": 16,
     "map.width": 16,
     "openFiles": [
-        "map_1.tmx",
+        "map1.tmx",
         "map_2.tmx",
-        "map_3.tmx",
-        "map1.tmx"
+        "map_3.tmx"
     ],
     "project": "1..tiled-project",
     "recentFiles": [
-        "map_1.tmx",
+        "map_3.tmx",
         "map_2.tmx",
         "map1.tmx",
-        "map_3.tmx",
+        "map_1.tmx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/floorswalls_LRK.tsx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/cabinets_LRK.tsx",
         "C:/Users/Owner/Desktop/AI_Dishwasher/game/assets/pixelinterior_LRK/livingroom_LRK.tsx",

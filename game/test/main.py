@@ -17,6 +17,7 @@ from moduls.human import HumanHandler
 from agent.evaluate import AgentPlayer
 from core.fridge import FridgeManager
 from visuals.fridge_ui import FridgeUI
+from visuals.cooking_animation import CookingAnimationManager
 
 
 class AppState(Enum):
@@ -38,6 +39,9 @@ class GameApp:
         
         # Core components
         self.level_manager = LevelManager()
+
+        self.animation_manager = CookingAnimationManager()
+
         self.player = Player()
         self.ui_manager = UIManager()
         self.kitchen_manager = KitchenManager()
@@ -57,16 +61,20 @@ class GameApp:
         self._load_initial_map()
     
     def _load_initial_map(self):
-        """Load map_1.tmx."""
+        """Загрузка первой доступной карты при старте."""
         maps = self.level_manager.get_available_maps()
+        target_map = None
         for m in ["map1.tmx", "map_1.tmx"]:
             if m in maps:
-                self.current_map = m
-                self.level_manager.load_map(self.current_map, self.player)
-                return
-        if maps:
-            self.current_map = maps[0]
-            self.level_manager.load_map(self.current_map, self.player)
+                target_map = m
+                break
+        if not target_map and maps:
+            target_map = maps[0]
+            
+        if target_map:
+            self.current_map = target_map
+            if self.level_manager.load_map(self.current_map, self.player):
+                self.animation_manager.refresh_layers_cache(self.level_manager.tmx_data)
     
     def run(self):
         """Main game loop."""
@@ -85,16 +93,19 @@ class GameApp:
             pygame.display.flip()
     
     def _handle_events(self):
-        """Handle pygame events based on current state."""
+        """Единый обработчик событий."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             
-            # Global hotkeys
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if self.app_state != AppState.MANUAL_GAME:
+                    if self.app_state == AppState.FRIDGE_MENU:
+                        self.animation_manager.stop_all() # Закрываем дверцу
+                        self.fridge_manager.toggle()
+                        self.app_state = AppState.MANUAL_GAME
+                    elif self.app_state != AppState.MANUAL_GAME:
                         self._return_to_manual()
                     continue
                 
@@ -105,7 +116,7 @@ class GameApp:
                     self._toggle_ai()
                     continue
             
-            # State-specific event handling
+            # Состояние холодильника
             if self.app_state == AppState.FRIDGE_MENU:
                 self._handle_fridge_events(event)
             elif self.app_state == AppState.MANUAL_GAME:
@@ -115,12 +126,21 @@ class GameApp:
             elif self.app_state == AppState.AI_GAME:
                 self._handle_ai_events(event)
             
-            # UI events (always handle)
+            # UI клики (смена карты)
             if event.type == pygame.MOUSEBUTTONDOWN:
+                old_map_name = self.level_manager.map_name
                 result = self.ui_manager.handle_click(event.pos, self.level_manager, 
                                                       self.player, self.kitchen_manager)
+                
+                # Если карта сменилась в UI - обновляем кэш слоев!
+                if self.level_manager.map_name != old_map_name:
+                    print(f"Карта сменилась на {self.level_manager.map_name}, обновляем анимации...")
+                    self.animation_manager.refresh_layers_cache(self.level_manager.tmx_data)
+                    self.current_map = self.level_manager.map_name + ".tmx"
+
                 if result == "load_replay":
                     self._load_replay()
+                    self.animation_manager.refresh_layers_cache(self.level_manager.tmx_data)
 
     def _handle_manual_events(self, event):
         """Передаем событие в human.py."""
@@ -182,6 +202,8 @@ class GameApp:
     
     def _update(self, dt):
         """Update game state."""
+        self.animation_manager.update(dt)
+
         if self.app_state == AppState.REPLAY_VIEWER and self.replay_controller:
             self.replay_controller.update(dt)
         elif self.app_state == AppState.AI_GAME:
@@ -249,16 +271,17 @@ class GameApp:
         )
     
     def _handle_events(self):
-        """Handle pygame events based on current state."""
+        """Единый и исправленный обработчик событий."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             
-            # Global hotkeys
+            # Глобальные горячие клавиши
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if self.app_state == AppState.FRIDGE_MENU:
+                        self.animation_manager.stop_all() # Закрываем дверцу визуально
                         self.fridge_manager.toggle()
                         self.app_state = AppState.MANUAL_GAME
                     elif self.app_state != AppState.MANUAL_GAME:
@@ -272,7 +295,7 @@ class GameApp:
                     self._toggle_ai()
                     continue
             
-            # --- СТРОГОЕ РАЗДЕЛЕНИЕ СОСТОЯНИЙ ---
+            # Обработка событий в зависимости от состояния
             if self.app_state == AppState.FRIDGE_MENU:
                 self._handle_fridge_events(event)
             elif self.app_state == AppState.MANUAL_GAME:
@@ -282,15 +305,23 @@ class GameApp:
             elif self.app_state == AppState.AI_GAME:
                 self._handle_ai_events(event)
             
-            # UI mouse events
+            # UI клики (СМЕНА КАРТЫ)
             if event.type == pygame.MOUSEBUTTONDOWN:
+                old_map_name = self.level_manager.map_name
                 result = self.ui_manager.handle_click(event.pos, self.level_manager, 
                                                       self.player, self.kitchen_manager)
+                
+                # Если карта сменилась — ОБНОВЛЯЕМ КЭШ АНИМАЦИЙ
+                if self.level_manager.map_name != old_map_name:
+                    print(f"Карта сменилась на {self.level_manager.map_name}, обновляем анимации...")
+                    self.animation_manager.refresh_layers_cache(self.level_manager.tmx_data)
+                    self.current_map = self.level_manager.map_name + ".tmx"
+
                 if result == "load_replay":
                     self._load_replay()
+                    self.animation_manager.refresh_layers_cache(self.level_manager.tmx_data)
 
     def _handle_fridge_events(self, event):
-        """Управление внутри меню холодильника."""
         if event.type == pygame.KEYDOWN:
             if event.key in [pygame.K_w, pygame.K_UP]: 
                 self.fridge_manager.move_selection(0, -1)
@@ -305,7 +336,6 @@ class GameApp:
                 prod_id, prod_name = self.fridge_manager.get_selected_product()
                 prod_data = self.fridge_manager.get_product_by_id(prod_id)
                 
-                # Создаем предмет в руках игрока
                 from core.entities import Item
                 self.player.held_item = Item(
                     prod_data["name"], 
@@ -314,13 +344,31 @@ class GameApp:
                     f"{prod_data['name']}_raw"
                 )
                 
-                # Закрываем холодильник
+                # Закрываем всё
+                self.animation_manager.stop_all() 
                 self.fridge_manager.toggle()
                 self.app_state = AppState.MANUAL_GAME
 
     def _process_interaction_result(self, result):
         """Применяет результаты взаимодействия к UI и состоянию игры."""
+        if not result: return
+
+        if result.event == "process_step" and result.station_name:
+            # Используем tool_type напрямую из результата
+            tool = result.tool_type 
+            if tool:
+                self.animation_manager.start_animation(
+                    result.station_name, 
+                    tool, 
+                    result.freeze_duration 
+                )
+        
+        # Если сбросили прогресс — стопаем анимации
+        if result.event == "reset": # или в handle_click при нажатии "Сбросить"
+             self.animation_manager.stop_all()
+
         if result.event == "open_fridge":
+            self.animation_manager.start_animation(result.station_name, "fridge", 999999) 
             self.fridge_manager.toggle()
             self.app_state = AppState.FRIDGE_MENU
             return
