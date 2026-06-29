@@ -10,7 +10,7 @@ RECIPES = {
 
     # --- МЯСО ---
     ("sink", "meat_raw"): {"next_state": "meat_washed", "name": "Подготовленное мясо", "image": "meat_raw", "time": 2500},
-    ("table", "meat_washed"): {"next_state": "meat_cut", "name": "Мясной нарез", "image": "meat_raw", "time": 3000},
+    ("table", "meat_washed"): {"next_state": "meat_cut", "name": "Мясной нарез", "image": "meat_cut", "time": 3000},
     ("gas-stove", "meat_cut"): {"next_state": "meat_fried", "name": "Жареный стейк", "image": "steak_done", "time": 4500},
 
     # --- ЯБЛОКИ ---
@@ -25,8 +25,16 @@ RECIPES = {
 
     # --- РЫБА ---
     ("sink", "fish_raw"): {"next_state": "fish_washed", "name": "Чистая рыба", "image": "fish_raw", "time": 2000},
-    ("table", "fish_washed"): {"next_state": "fish_cut", "name": "Филе рыбы", "image": "fish_raw", "time": 3000},
-    ("table", "fish_cut"): {"next_state": "sushi", "name": "Суши", "image": "sushi", "time": 4000},
+    ("table", "fish_washed"): {"next_state": "fish_cut", "name": "Филе рыбы", "image": "fish_steak", "time": 3000},
+    ("table", "fish_cut"): {"next_state": "sashimi", "name": "Сашими", "image": "sashimi", "time": 4000},
+}
+
+ALL_PRODUCTS = {
+    1: {"name": "potato", "display": "Картофель", "image": "potato"},
+    2: {"name": "tomato", "display": "Томат", "image": "tomato"},
+    3: {"name": "apple", "display": "Яблоко", "image": "fruit_apple"},
+    4: {"name": "meat", "display": "Мясо", "image": "meat_raw"},
+    5: {"name": "fish", "display": "Рыба", "image": "fish_raw"},
 }
 
 # Ключ заказа должен СОВПАДАТЬ с next_state последнего этапа в RECIPES
@@ -36,7 +44,7 @@ FINAL_PRODUCTS = {
     "apple_pie": "Яблочный пирог",
     "meat_fried": "Мясной стейк",
     "soup": "Томатный суп",
-    "sushi": "Суши"
+    "sashimi": "Сашими"
 }
 
 # Соответствие заказа базовому ингредиенту
@@ -46,7 +54,7 @@ STARTING_INGREDIENTS = {
     "apple_pie": ("apple", "Яблоко", "fruit_apple"),
     "meat_fried": ("meat", "Мясо", "meat_raw"),
     "soup": ("tomato", "Томат", "tomato"),
-    "sushi": ("fish", "Рыба", "fish_raw")
+    "sashimi": ("fish", "Рыба", "fish_raw")
 }
 
 def get_recipe_result(tool_name, item_state):

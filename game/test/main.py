@@ -9,12 +9,14 @@ from settings import *
 from core.level import LevelManager
 from core.entities import Player         
 from core.mechanics import KitchenManager 
-from core.replay import ReplayController, ReplayControllerGrid # NEW
+from core.replay import ReplayController, ReplayControllerGrid
 from visuals.ui_overlay import UIManager
 from visuals.renderer import GameRenderer
-from visuals.visual_state import VisualWorldState # NEW
+from visuals.visual_state import VisualWorldState
 from moduls.human import HumanHandler
 from agent.evaluate import AgentPlayer
+from core.fridge import FridgeManager
+from visuals.fridge_ui import FridgeUI
 
 
 class AppState(Enum):
@@ -23,7 +25,7 @@ class AppState(Enum):
     MANUAL_GAME = auto()
     REPLAY_VIEWER = auto()
     AI_GAME = auto()
-
+    FRIDGE_MENU = auto()
 
 class GameApp:
     """Main game application with state machine."""
@@ -42,12 +44,15 @@ class GameApp:
         self.human_handler = HumanHandler()
         self.renderer = GameRenderer(self.screen)
         
+        self.fridge_manager = FridgeManager()
+        self.fridge_ui = FridgeUI()
+        
         # State
         self.app_state = AppState.MANUAL_GAME
         self.replay_controller = None
         self.current_map = None
         self.agent_player = None
-        
+
         # Load initial map
         self._load_initial_map()
     
@@ -101,7 +106,9 @@ class GameApp:
                     continue
             
             # State-specific event handling
-            if self.app_state == AppState.MANUAL_GAME:
+            if self.app_state == AppState.FRIDGE_MENU:
+                self._handle_fridge_events(event)
+            elif self.app_state == AppState.MANUAL_GAME:
                 self._handle_manual_events(event)
             elif self.app_state == AppState.REPLAY_VIEWER:
                 self._handle_replay_events(event)
@@ -114,26 +121,7 @@ class GameApp:
                                                       self.player, self.kitchen_manager)
                 if result == "load_replay":
                     self._load_replay()
-    
-    # def _handle_manual_events(self, event):
-    #     """Handle events in manual game mode."""
-    #     if event.type == pygame.KEYDOWN:
-    #         if pygame.time.get_ticks() < self.player.freeze_until:
-    #             return
-            
-    #         dx, dy = 0, 0
-    #         if event.key == pygame.K_w: dy = -1
-    #         elif event.key == pygame.K_s: dy = 1
-    #         elif event.key == pygame.K_a: dx = -1
-    #         elif event.key == pygame.K_d: dx = 1
-            
-    #         if dx != 0 or dy != 0:
-    #             self.player.move(dx, dy, self.level_manager)
-            
-    #         if event.key in [pygame.K_e, pygame.K_f]:
-    #             self.kitchen_manager.handle_interaction(self.player, self.level_manager, 
-    #                                                    event.key, self.ui_manager)
-    
+
     def _handle_manual_events(self, event):
         """Передаем событие в human.py."""
         result = self.human_handler.handle_input(
@@ -200,33 +188,33 @@ class GameApp:
             self._update_ai()
     
     def _render(self):
-        """Render current frame."""
         self.screen.fill(BLACK)
         
-        # Draw map background
-        # self.level_manager.draw(self.screen, self.kitchen_manager)
-        
-        # Get visual state based on current mode
-        if self.app_state in (AppState.MANUAL_GAME, AppState.AI_GAME):
+        visual_state = None
+        if self.app_state in (AppState.MANUAL_GAME, AppState.AI_GAME, AppState.FRIDGE_MENU):
             visual_state = VisualWorldState.from_manual_game(
                 self.player, self.kitchen_manager, self.level_manager
             )
         elif self.app_state == AppState.REPLAY_VIEWER and self.replay_controller:
             visual_state = self.replay_controller.get_current_state()
-        else:
-            visual_state = None
         
-        # Render visual state
         if visual_state:
             self.renderer.render(visual_state, self.level_manager)
         
-        # Draw UI based on mode
-        if self.app_state in (AppState.MANUAL_GAME, AppState.AI_GAME):
-            self._render_manual_ui()
+        # UI слои
+        if self.app_state in (AppState.MANUAL_GAME, AppState.AI_GAME, AppState.FRIDGE_MENU):
+            self.ui_manager.draw_ui(self.screen, self.player, self.kitchen_manager, self.level_manager)
+            self.ui_manager.draw_popups(self.screen)
+            self.ui_manager.draw_timer(self.screen, self.player, self.level_manager)
             if self.app_state == AppState.MANUAL_GAME:
                 self.ui_manager.draw_proximity_prompts(self.screen, self.player, self.level_manager)
+        
         elif self.app_state == AppState.REPLAY_VIEWER:
             self._render_replay_ui()
+
+        # Поверх всего рисуем меню холодильника, если оно активно
+        if self.app_state == AppState.FRIDGE_MENU:
+            self.fridge_ui.draw(self.screen, self.fridge_manager)
     
     def _render_manual_ui(self):
         """Render UI for manual game mode."""
@@ -260,8 +248,83 @@ class GameApp:
             self.screen, progress, current_tick, total_ticks, is_playing, speed
         )
     
+    def _handle_events(self):
+        """Handle pygame events based on current state."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            
+            # Global hotkeys
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if self.app_state == AppState.FRIDGE_MENU:
+                        self.fridge_manager.toggle()
+                        self.app_state = AppState.MANUAL_GAME
+                    elif self.app_state != AppState.MANUAL_GAME:
+                        self._return_to_manual()
+                    continue
+                
+                if event.key == pygame.K_F5:
+                    self._load_replay()
+                    continue
+                if event.key == pygame.K_F6:
+                    self._toggle_ai()
+                    continue
+            
+            # --- СТРОГОЕ РАЗДЕЛЕНИЕ СОСТОЯНИЙ ---
+            if self.app_state == AppState.FRIDGE_MENU:
+                self._handle_fridge_events(event)
+            elif self.app_state == AppState.MANUAL_GAME:
+                self._handle_manual_events(event)
+            elif self.app_state == AppState.REPLAY_VIEWER:
+                self._handle_replay_events(event)
+            elif self.app_state == AppState.AI_GAME:
+                self._handle_ai_events(event)
+            
+            # UI mouse events
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                result = self.ui_manager.handle_click(event.pos, self.level_manager, 
+                                                      self.player, self.kitchen_manager)
+                if result == "load_replay":
+                    self._load_replay()
+
+    def _handle_fridge_events(self, event):
+        """Управление внутри меню холодильника."""
+        if event.type == pygame.KEYDOWN:
+            if event.key in [pygame.K_w, pygame.K_UP]: 
+                self.fridge_manager.move_selection(0, -1)
+            elif event.key in [pygame.K_s, pygame.K_DOWN]: 
+                self.fridge_manager.move_selection(0, 1)
+            elif event.key in [pygame.K_a, pygame.K_LEFT]: 
+                self.fridge_manager.move_selection(-1, 0)
+            elif event.key in [pygame.K_d, pygame.K_RIGHT]: 
+                self.fridge_manager.move_selection(1, 0)
+            
+            elif event.key in [pygame.K_SPACE, pygame.K_e, pygame.K_RETURN]:
+                prod_id, prod_name = self.fridge_manager.get_selected_product()
+                prod_data = self.fridge_manager.get_product_by_id(prod_id)
+                
+                # Создаем предмет в руках игрока
+                from core.entities import Item
+                self.player.held_item = Item(
+                    prod_data["name"], 
+                    prod_data["display"], 
+                    prod_data["image"], 
+                    f"{prod_data['name']}_raw"
+                )
+                
+                # Закрываем холодильник
+                self.fridge_manager.toggle()
+                self.app_state = AppState.MANUAL_GAME
+
     def _process_interaction_result(self, result):
-        """Apply UI updates from an InteractionResult."""
+        """Применяет результаты взаимодействия к UI и состоянию игры."""
+        if result.event == "open_fridge":
+            self.fridge_manager.toggle()
+            self.app_state = AppState.FRIDGE_MENU
+            return
+
         if result.popup_text:
             rect = pygame.Rect(
                 result.popup_pos[0] * self.level_manager.tile_size if result.popup_pos else WIDTH // 2,
@@ -269,6 +332,7 @@ class GameApp:
                 100, 50
             )
             self.ui_manager.show_popup(result.popup_text, rect, result.popup_duration)
+        
         if result.score_delta:
             self.ui_manager.score_stack.add(result.score_delta, pygame.time.get_ticks())
 

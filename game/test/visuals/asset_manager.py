@@ -35,13 +35,15 @@ class AssetManager:
             "fruit_apple": "fruit_apple.png",
             "apple_cut": "Apple_piece_01_Outline_BigWander_TheBanquet.png",
             "apple_pie": "06_apple_pie_dish.png",
-            "meat_raw": "BoarMeat_Raw_Individual_Outline_BigWander_TheBanquet.png",
-            "meat_cut": "BoarMeat_Raw_Half_Left_Outline_BigWander_TheBanquet.png",
-            "steak_done": "96_steak_dish.png",
+            "meat_raw": "Steak_Raw.png",
+            "meat_cut": "Steak_Raw_Half.png",
+            "steak_done": "steak_dish.png",
             "tomato": "vegetable_tomato.png",
             "tomato_cut": "Tomatoe_half_bottom.png",
             "soup": "canned_soup.png",
-            "sushi": "98_sushi_dish.png",
+            "fish_raw": "Fish.png",
+            "fish_steak":"FishSteak.png",
+            "sashimi": "salmon_dish.png",
         }
         
         # Подпапка внутри ASSETS_DIR

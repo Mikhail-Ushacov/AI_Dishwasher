@@ -58,14 +58,9 @@ class KitchenManager:
 
         # 1. ХОЛОДИЛЬНИК
         if name == "fridge" and action_type == "primary":
-            if not held:
-                res = STARTING_INGREDIENTS.get(self.current_order)
-                if res:
-                    itype, disp, img = res
-                    # Важно: состояние теперь {type}_raw, чтобы sink его узнал
-                    player.held_item = Item(itype, disp, img, f"{itype}_raw")
-                    return InteractionResult(event="pickup", popup_text=f"Взято: {disp}", popup_pos=(gx, gy))
-            return InteractionResult("nothing")
+            if not player.held_item:
+                # Возвращаем только сигнал к открытию меню, не меняя предмет игрока здесь!
+                return InteractionResult(event="open_fridge")
 
         # 2. ВЫДАЧА
         if name == "order" and action_type == "primary":
