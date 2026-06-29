@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="67">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="70">
  <tileset firstgid="1" name="floorswalls_LRK" tilewidth="16" tileheight="16" tilecount="224" columns="14">
   <image source="../assets/pixelinterior_LRK/floorswalls_LRK.png" width="224" height="256"/>
  </tileset>
@@ -173,14 +173,7 @@
   <object id="6" name="order" x="223.75" y="256.125" width="16.25" height="15.875"/>
   <object id="7" x="-0.125" y="256.063" width="223.841" height="30.875"/>
   <object id="8" x="240.625" y="256.563" width="271.25" height="30.875"/>
-  <object id="9" name="gas-stove" x="96.2197" y="64.0455" width="31.75" height="15.25"/>
-  <object id="10" name="oven" x="95.9697" y="79.7955" width="31.75" height="25.25"/>
-  <object id="11" name="gas-stove" x="192.341" y="64.3182" width="31.6484" height="15.25"/>
-  <object id="12" name="oven" x="192.091" y="80.0682" width="31.75" height="25.25"/>
-  <object id="13" name="gas-stove" x="288.159" y="64.9545" width="31.75" height="15.25"/>
-  <object id="14" name="oven" x="287.909" y="80.7045" width="31.75" height="25.25"/>
-  <object id="15" name="gas-stove" x="384.341" y="64.3182" width="31.625" height="15.25"/>
-  <object id="16" name="oven" x="384.091" y="80.0682" width="31.75" height="25.25"/>
+  <object id="10" name="cooking_place" x="95.9697" y="68.7955" width="31.75" height="25.25"/>
   <object id="17" name="sink" x="64.0582" y="64.9205" width="32.4531" height="15.0781"/>
   <object id="18" name="sink" x="160.021" y="63.9091" width="31.9219" height="16.0598"/>
   <object id="19" name="sink" x="256.489" y="64.1023" width="31.4457" height="15.8152"/>
@@ -219,7 +212,10 @@
   <object id="62" name="table" x="480.328" y="95.5397" width="23.895" height="16.0866"/>
   <object id="63" name="table" x="480.269" y="79.6086" width="23.895" height="15.8991"/>
   <object id="64" x="480.301" y="63.5149" width="24.9262" height="16.0866"/>
-  <object id="65" name="fridge" x="99.8333" y="150.885" width="24.25" height="56.0313"/>
-  <object id="66" name="fridge" x="387.972" y="151.007" width="24.25" height="56.0313"/>
+  <object id="65" name="fridge" x="99.8333" y="162.34" width="24.25" height="44.5768"/>
+  <object id="66" name="fridge" x="387.972" y="161.916" width="24.25" height="45.1222"/>
+  <object id="67" name="cooking_place" x="193.125" y="69.125" width="29.875" height="25.25"/>
+  <object id="68" name="cooking_place" x="289.5" y="67.5" width="28.75" height="25.25"/>
+  <object id="69" name="cooking_place" x="385.5" y="68.375" width="28.75" height="25.25"/>
  </objectgroup>
 </map>

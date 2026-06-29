@@ -11,7 +11,7 @@
 90,91,91,91,93,
 90,91,91,91,93,
 90,91,91,91,93,
-78,105,105,105,78
+78,105,105,105,107
 </data>
  </layer>
  <layer id="2" name="Слой тайлов 2" width="5" height="5">
@@ -19,8 +19,8 @@
 255,256,257,258,259,
 0,0,0,0,0,
 0,0,0,0,0,
-0,273,274,284,285,
-255,299,300,310,311
+0,273,274,0,0,
+255,299,300,0,0
 </data>
  </layer>
  <layer id="4" name="Слой тайлов 3" width="5" height="5">
@@ -38,12 +38,11 @@
   <object id="3" x="-0.25" y="-5.25" width="80" height="5"/>
   <object id="4" x="0.125" y="80.375" width="80" height="5"/>
   <object id="5" name="order" x="0" y="64.25" width="16" height="16"/>
-  <object id="6" name="oven" x="48" y="48" width="31" height="25"/>
-  <object id="7" name="gas-stove" x="48" y="0" width="31" height="15"/>
+  <object id="7" name="cooking_place" x="48" y="0" width="31" height="15"/>
   <object id="8" name="table" x="0" y="0" width="16" height="15"/>
   <object id="10" name="sink" x="17.625" y="0" width="30" height="15"/>
-  <object id="12" name="fridge" x="19.625" y="55.625" width="25" height="25"/>
-  <object id="14" name="GarbageBin" type="trash" x="-13.125" y="34.625" width="16" height="16"/>
+  <object id="12" name="fridge" x="19.625" y="65.0163" width="25" height="15.6087"/>
+  <object id="14" name="GarbageBin" type="trash" x="-22.9432" y="34.9886" width="16" height="16"/>
   <object id="15" name="player" x="34.5" y="42.25">
    <point/>
   </object>
